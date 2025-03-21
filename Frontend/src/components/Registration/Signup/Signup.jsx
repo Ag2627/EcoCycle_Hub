@@ -212,7 +212,7 @@ const SignupPage=()=> {
 
         <div className="text-center text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
+          <Link to="/auth/login" className="text-blue-600 hover:underline">
             Login
           </Link>
         </div>

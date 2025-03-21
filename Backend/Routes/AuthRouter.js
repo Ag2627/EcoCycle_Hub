@@ -5,5 +5,5 @@ const Authrouter=express.Router();
 
 Authrouter.post('/login', loginValidation, login);
 Authrouter.post('/signup', signupValidation, signup);
-
+Authrouter.post('/check-auth',signupValidation)
 export default Authrouter;

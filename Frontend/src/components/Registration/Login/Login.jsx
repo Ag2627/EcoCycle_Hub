@@ -25,43 +25,7 @@ const handleChange = (e) => {
     setLoginInfo(copyLoginInfo);
 }
 
-const handleLogin = async (e) => {
-    e.preventDefault();
-    const { email, password } = loginInfo;
-    if (!email || !password) {
-        return handleError('email and password are required')
-    }
-    try {
-        const url = `http://localhost:5000/auth/login`;
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(loginInfo)
-        });
-        const result = await response.json();
-        const { success, message, jwtToken, name, error } = result;
-        if (success) {
-            handleSuccess(message);
-            localStorage.setItem('token', jwtToken);
-            localStorage.setItem('loggedInUser', name);
-            setTimeout(() => {
-                navigate('/home')
-            }, 1000)
-        } else if (error) {
-            const details = error?.details[0].message;
-            handleError(details);
-        } else if (!success) {
-            handleError(message);
-        }
-        console.log(result);
-    } catch (err) {
-        handleError(err);
-    }
-}
 
- 
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
@@ -84,7 +48,7 @@ const handleLogin = async (e) => {
           <p className="mt-2 text-gray-600">Welcome back! Please login to your account</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -144,7 +108,7 @@ const handleLogin = async (e) => {
         </Button>
 
         <div className="text-center text-sm">
-          Don&apos;t have an account? <Link to="/signup" className="text-blue-600 hover:underline">Sign up</Link>
+          Don&apos;t have an account? <Link to="/auth/signup" className="text-blue-600 hover:underline">Sign up</Link>
         </div>
       </div>
     </div>

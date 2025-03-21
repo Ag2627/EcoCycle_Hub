@@ -7,13 +7,10 @@ import ReportPage from './components/report/page';
 const router=createBrowserRouter(
   [
     {path:'/',element:<GetStarted/>},
-    {path:'/auth',element:<GetStarted/>,children:[
-      {path:'/login',element:<LoginPage/>},
-    {path:'/signup',element:<SignupPage/>}
-    ]},
+    {path:'/auth/login',element:<LoginPage/>},
+    {path:'/auth/signup',element:<SignupPage/>},
     {path:'user/dashboard',element:<Home/>},
-    {path:'user/report',element:<ReportPage/>}
-    
+    {path:'user/report',element:<ReportPage/>},
   ]
 )
 
