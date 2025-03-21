@@ -1,7 +1,17 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './components/Home/Home';
+import LoginPage from './components/Registration/Login/Login';
+import SignupPage from './components/Registration/Signup/Signup';
+import GetStarted from './components/Registration/GetStarted';
 const router=createBrowserRouter(
-  [{path:'',element:<Home/>}]
+  [
+    {path:'/',element:<GetStarted/>},
+    {path:'/auth',element:<GetStarted/>,children:[
+      {path:'/login',element:<LoginPage/>},
+    {path:'/signup',element:<SignupPage/>}
+    ]},
+    {path:'user/dashboard',element:<Home/>}
+  ]
 )
 
 

@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import Connection from "./Database/db.js"
 import bodyParser from "body-parser"
+import Authrouter from "./Routes/AuthRouter.js";
 dotenv.config();
 const app = express();
 
@@ -20,10 +21,11 @@ app.use( cors({
       "Pragma",
     ],
     credentials: true,
-  }));
+  })); //iske andar ye likhna optional h likh kar bas site secure banti h or nahi likhne par kisi par bhi chal jaati h
 
-  app.use(bodyParser.json({extended:true}));
-app.use(bodyParser.urlencoded({extended:true}));
+//   app.use(bodyParser.json({extended:true}));
+// app.use(bodyParser.urlencoded({extended:true}));
+app.use('/auth',Authrouter);
 // Routes
 app.get("/", (req, res) => {
   res.send("Waste Management API is running...");
