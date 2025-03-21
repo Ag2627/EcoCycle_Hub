@@ -7,14 +7,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { loginUser } from "@/redux/store/auth-slice";
+const initialState = {
+  email: "",
+  password: "",
+};
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loginInfo, setLoginInfo] = useState({
-    email: '',
-    password: ''
-})
+  
 
+  const [formData, setFormData] = useState(initialState);
+  const dispatch = useDispatch();
+
+  function onSubmit(event) {
+    event.preventDefault();
+
+    dispatch(loginUser(formData)).then((data) => {
+      if (data?.payload?.success) {
+        toast({
+          title: data?.payload?.message,
+        });
+      } else {
+        toast({
+          title: data?.payload?.message,
+          variant: "destructive",
+        });
+      }
+    });
+  }
 const navigate = useNavigate();
 
 const handleChange = (e) => {
