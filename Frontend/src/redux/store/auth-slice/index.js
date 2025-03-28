@@ -5,6 +5,7 @@ const initialState = {
   isAuthenticated: false,
   isLoading: true,
   user: null,
+  token:null,
 };
 
 export const registerUser = createAsyncThunk(
@@ -54,7 +55,20 @@ export const logoutUser = createAsyncThunk(
     return response.data;
   }
 );
-
+export const googleLogin = createAsyncThunk(
+  "/auth/googlelogin",
+  async (formData) => {
+    const response = await axios.post(
+      "http://localhost:5000/auth/google-login",formData,
+      {
+        withCredentials: true,
+      }
+    );
+    console.log("Apu",response);
+    
+    return response.data;
+  }
+);
 export const checkAuth = createAsyncThunk(
   "/auth/checkauth",
 
@@ -78,7 +92,10 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action) => {},
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -86,8 +103,10 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
+        
         state.isLoading = false;
-        state.user = null;
+        state.user = action.payload.data;
+        state.token = action.payload.token;
         state.isAuthenticated = false;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -102,20 +121,24 @@ const authSlice = createSlice({
         console.log(action);
 
         state.isLoading = false;
-        state.user = action.payload.success ? action.payload.user : null;
+        state.user = action.payload.success ? action.payload.data : null;
+        state.token = action.payload.token;
         state.isAuthenticated = action.payload.success;
       })
-      .addCase(loginUser.rejected, (state, action) => {
+    
+      
+      .addCase(googleLogin.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
       })
-      .addCase(checkAuth.pending, (state) => {
+      .addCase(googleLogin.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(checkAuth.fulfilled, (state, action) => {
+      .addCase(googleLogin.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.success ? action.payload.user : null;
+        state.user = action.payload.success ? action.payload.data : null;
+        state.token = action.payload.success ? action.payload.token : null;
         state.isAuthenticated = action.payload.success;
       })
       .addCase(checkAuth.rejected, (state, action) => {
@@ -131,5 +154,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;
