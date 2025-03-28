@@ -5,6 +5,7 @@ import cors from "cors";
 import Connection from "./Database/db.js"
 import bodyParser from "body-parser"
 import Authrouter from "./Routes/AuthRouter.js";
+import Reportrouter from "./Routes/ReportRouter.js";
 dotenv.config();
 const app = express();
 
@@ -30,7 +31,7 @@ app.use('/auth',Authrouter);
 app.get("/", (req, res) => {
   res.send("Waste Management API is running...");
 });
-
+app.use("/reports", Reportrouter);
 // MongoDB Connection
 const USERNAME=process.env.DB_USERNAME;
 const PASSWORD=process.env.DB_PASSWORD;
