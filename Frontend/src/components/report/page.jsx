@@ -1,182 +1,131 @@
-"use client";
+"use client"
 
-import React, { useState, useRef, useCallback } from "react";
-import { Map } from "@maptiler/sdk";
-//import { GeocodingControl } from "@maptiler/geocoding-control";
-import "@maptiler/sdk/dist/maptiler-sdk.css";
-//import "@maptiler/geocoding-control/style.css";
+import { useState } from "react"
+import { Upload } from "lucide-react"
 
-import { Upload, CheckCircle, Loader } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
+export default function WasteReportForm() {
+  const [file, setFile] = useState(null)
+  const [dragActive, setDragActive] = useState(false)
+  const [location, setLocation] = useState("")
+  const [wasteType, setWasteType] = useState("Verified waste type")
+  const [amount, setAmount] = useState("Verified amount")
+  const [isVerified, setIsVerified] = useState(false)
 
-const mapTilerApiKey = import.meta.env.VITE_MAPTILER_API_KEY; // Your MapTiler API key
+  const handleDrag = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }
 
-export default function ReportPage() {
-  const [newReport, setNewReport] = useState({
-    location: "",
-    type: "",
-    amount: "",
-  });
+  const handleDrop = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
 
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [verificationStatus, setVerificationStatus] = useState("idle");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0])
+    }
+  }
 
-  const mapRef = useRef(null);
-
-  // Handle File Upload
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreview(e.target?.result);
-      };
-      reader.readAsDataURL(selectedFile);
+      handleFile(e.target.files[0])
     }
-  };
+  }
 
-  // Handle Location Search
-  const handleLocationSelect = useCallback((query) => {
-    setNewReport((prev) => ({
-      ...prev,
-      location: query,
-    }));
-  }, []);
-  
+  const handleFile = (file) => {
+    setFile(file)
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    toast.loading("Submitting report...");
+  const verifyWaste = () => {
+    // Simulate verification process
+    setIsVerified(true)
+  }
 
-    try {
-      const formData = new FormData();
-      formData.append("location", newReport.location);
-      formData.append("type", newReport.type);
-      formData.append("amount", newReport.amount);
-      if (file) formData.append("file", file);
-
-      const response = await fetch("/api/report", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        toast.success("Report submitted successfully!");
-        setNewReport({ location: "", type: "", amount: "" });
-        setFile(null);
-        setPreview(null);
-      } else {
-        throw new Error("Submission failed");
-      }
-    } catch (error) {
-      toast.error("Error submitting report");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const submitReport = () => {
+    // Handle form submission
+    alert("Report submitted successfully!")
+    // Reset form
+    setFile(null)
+    setLocation("")
+    setIsVerified(false)
+  }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report Waste</h1>
-
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg mb-12">
-        {/* Image Upload */}
-        <div className="mb-8">
-          <label className="block text-lg font-medium text-gray-700 mb-2">Upload Waste Image</label>
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl">
-            <div className="space-y-1 text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="flex text-sm text-gray-600">
-                <label className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500">
-                  <span>Upload a file</span>
-                  <input type="file" className="sr-only" onChange={handleFileChange} accept="image/*" />
-                </label>
-              </div>
-            </div>
+    <div className="flex flex-col max-w-2xl mx-auto p-6 bg-white rounded-lg">
+      <div
+        className={`border-2 border-dashed ${dragActive ? "border-green-500" : "border-green-300"} rounded-lg p-6 flex flex-col items-center justify-center min-h-[150px] ${dragActive ? "bg-green-50" : "bg-white"}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        <label htmlFor="file-upload" className="cursor-pointer w-full text-center">
+          <div className="flex flex-col items-center justify-center">
+            <Upload className="w-8 h-8 text-gray-400 mb-2" />
+            <p className="text-green-500 font-medium text-lg">Upload a file or drag and drop</p>
+            <p className="text-gray-500 text-sm mt-1">PNG, JPG, GIF up to 10MB</p>
+            <input
+              id="file-upload"
+              type="file"
+              className="hidden"
+              accept=".png,.jpg,.jpeg,.gif"
+              onChange={handleFileChange}
+            />
           </div>
-        </div>
+        </label>
+        {file && <div className="mt-2 text-sm text-gray-600">File selected: {file.name}</div>}
+      </div>
 
-        {/* Image Preview */}
-        {preview && (
-          <div className="mt-4 mb-8">
-            <img src={preview} alt="Waste preview" className="max-w-full h-auto rounded-xl shadow-md" />
-          </div>
-        )}
+      <button
+        className="mt-6 w-full bg-blue-400 hover:bg-blue-500 text-white py-3 px-4 rounded-lg font-medium"
+        onClick={verifyWaste}
+      >
+        Verify Waste
+      </button>
 
-        {/* Location Search using MapTiler */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Location</label>
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+        <div>
+          <label className="block text-gray-700 mb-2">Location</label>
           <input
             type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-green-500"
             placeholder="Enter waste location"
-            onChange={(e) => handleLocationSelect(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
           />
         </div>
-
-        {/* MapTiler Map */}
-        <div className="mb-8">
-          <Map
-            ref={mapRef}
-            style={{ width: "100%", height: "300px" }}
-            center={[0, 0]}
-            zoom={2}
-            apiKey={mapTilerApiKey}
-          />
-        </div>
-
-        {/* Waste Type */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Type of Waste</label>
+        <div>
+          <label className="block text-gray-700 mb-2">Waste Type</label>
           <input
             type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl"
-            placeholder="E.g. Plastic, Glass, Paper"
-            value={newReport.type}
-            onChange={(e) => setNewReport({ ...newReport, type: e.target.value })}
+            className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none"
+            value={wasteType}
+            disabled
           />
         </div>
-
-        {/* Waste Amount */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Approximate Amount (Kg)</label>
+        <div>
+          <label className="block text-gray-700 mb-2">Estimated Amount</label>
           <input
-            type="number"
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl"
-            placeholder="Enter amount in Kg"
-            value={newReport.amount}
-            onChange={(e) => setNewReport({ ...newReport, amount: e.target.value })}
+            type="text"
+            className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none"
+            value={amount}
+            disabled
           />
         </div>
+      </div>
 
-        {/* Verification Status */}
-        {verificationStatus === "loading" && (
-          <div className="flex items-center space-x-2 mb-4 text-blue-500">
-            <Loader className="animate-spin h-5 w-5" />
-            <span>Verifying image...</span>
-          </div>
-        )}
-        {verificationStatus === "verified" && (
-          <div className="flex items-center space-x-2 mb-4 text-green-600">
-            <CheckCircle className="h-5 w-5" />
-            <span>Verified!</span>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg rounded-xl"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Submitting..." : "Submit Report"}
-        </Button>
-      </form>
+      <button
+        className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium"
+        onClick={submitReport}
+      >
+        Submit Report
+      </button>
     </div>
-  );
+  )
 }
+

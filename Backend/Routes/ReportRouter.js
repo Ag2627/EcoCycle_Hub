@@ -5,7 +5,7 @@ import {
     getReportById, 
     deleteReport, 
     verifyWaste 
-} from "../controller/ReportController.js";
+} from "../controllers/ReportController.js";
 
 const Reportrouter = express.Router();
 
