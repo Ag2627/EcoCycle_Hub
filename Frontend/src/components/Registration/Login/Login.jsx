@@ -1,6 +1,6 @@
-// import { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -145,15 +145,14 @@ const LoginPage = () => {
             </div>
           </div>
 
-//           <Button type="submit" className="w-full bg-black text-white" disabled={isLoading}>
-//             {isLoading ? "Logging in..." : "Login"}
-//           </Button>
-//         </form>
-
-//         <div className="relative flex items-center justify-center">
-//           <Separator className="absolute w-full" />
-//           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
-//         </div>
+         <Button type="submit" className="w-full bg-black text-white" disabled={isLoading}>
+             {isLoading ? "Logging in..." : "Login"}
+           </Button>
+         </form>
+         <div className="relative flex items-center justify-center">
+           <Separator className="absolute w-full" />
+           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
+         </div>
 
         <div className="flex justify-center">
           <GoogleLogin onSuccess={handleGoogleLogin} onError={handleGoogleFailure} />
@@ -166,4 +165,4 @@ const LoginPage = () => {
   );
 };
 
-// export default LoginPage;
+export default LoginPage;
