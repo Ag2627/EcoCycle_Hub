@@ -1,23 +1,24 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../Model/User.js';
-
-
+import dotenv from 'dotenv';
+dotenv.config();
 export const signup = async (req, res) => {
     try {
-        const { name, email, password,phone,address } = req.body;
+        const { name, email, password,phone,address,role } = req.body;
         const user = await User.findOne({ email });
         if (user) {
             return res.status(409)
                 .json({ message: 'User is already exist, you can login', success: false });
         }
-        const userModel = new User({ name, email, password,phone,address });
+        const userModel = new User({ name, email, password,phone,address,role });
         userModel.password = await bcrypt.hash(password, 10);
         await userModel.save();
         res.status(201)
             .json({
                 message: "Signup successfully",
-                success: true
+                success: true,
+                data: userModel
             })
     } catch (err) {
         console.error("Signup Error:", err);
@@ -55,8 +56,8 @@ export const login = async (req, res) => {
                 message: "Login Success",
                 success: true,
                 jwtToken,
-                email,
-                name: user.name
+                
+                data: user
             })
     } catch (err) {
         res.status(500)
@@ -66,3 +67,30 @@ export const login = async (req, res) => {
             })
     }
 }
+
+export const googleLogin = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found, please sign up" });
+        }
+
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        res.status(200).json({
+            message: "Login successful",
+            token,
+            success:true,
+            data:user
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
