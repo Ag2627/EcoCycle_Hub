@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@maptiler/sdk": "^3.0.2",
     "google-auth-library": "^9.15.1"
   }
 }
