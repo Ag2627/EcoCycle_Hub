@@ -1,131 +1,364 @@
 "use client"
-
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useState } from "react"
-import { Upload } from "lucide-react"
+import { CheckCircle,Upload, Loader, MapPin } from "lucide-react";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import { Button } from "../ui/button";
+import { useJsApiLoader, StandaloneSearchBox } from "@react-google-maps/api";
+import { useCallback } from "react";
+import { useEffect } from "react";
+const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+console.log("gemini",geminiApiKey);
+console.log("google",googleMapsApiKey);
+const libraries = ["places"];
+export default function ReportPage() {
+  const user = useSelector((state) => state.auth.user); // Fetch user from Redux store
+  const [file, setFile] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [location, setLocation] = useState("");
+  const [wasteType, setWasteType] = useState("Verified waste type");
+  const [amount, setAmount] = useState("Verified amount");
+  const [verificationStatus, setVerificationStatus] = useState("idle");
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [searchBox, setSearchBox] = useState(null);
 
-export default function WasteReportForm() {
-  const [file, setFile] = useState(null)
-  const [dragActive, setDragActive] = useState(false)
-  const [location, setLocation] = useState("")
-  const [wasteType, setWasteType] = useState("Verified waste type")
-  const [amount, setAmount] = useState("Verified amount")
-  const [isVerified, setIsVerified] = useState(false)
+  const [reports, setReports] = useState([
+    {
+      id: "",
+      location: "",
+      wasteType: "",
+      amount: "",
+      createdAt: "",
+    },
+  ]);
+  
 
-  const handleDrag = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
-    } else if (e.type === "dragleave") {
-      setDragActive(false)
+  const [newReport, setNewReport] = useState({
+    location: '',
+    type: '',
+    amount: '',
+  })
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: googleMapsApiKey,
+    libraries: libraries,
+  });
+  
+
+  const onLoad = useCallback((ref) => {
+    setSearchBox(ref);
+  }, []);
+  
+
+  const onPlacesChanged = () => {
+    if (searchBox) {
+      const places = searchBox.getPlaces();
+      if (places && places.length > 0) {
+        const place = places[0];
+        setNewReport(prev => ({
+          ...prev,
+          location: place.formatted_address || '',
+        }));
+      }
     }
-  }
-
-  const handleDrop = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0])
-    }
-  }
-
+  };
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0])
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPreview(event.target?.result);
+      };
+      reader.readAsDataURL(selectedFile);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setNewReport({ ...newReport, [name]: value })
   }
 
-  const handleFile = (file) => {
-    setFile(file)
-  }
+  const readFileAsBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]); // Remove data:image/... prefix
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
-  const verifyWaste = () => {
-    // Simulate verification process
-    setIsVerified(true)
-  }
 
-  const submitReport = () => {
-    // Handle form submission
-    alert("Report submitted successfully!")
-    // Reset form
-    setFile(null)
-    setLocation("")
-    setIsVerified(false)
+const verifyWaste = async () => {
+  if (!file) return;
+
+  setVerificationStatus("verifying");
+
+  try {
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });;
+    
+    const base64Data = await readFileAsBase64(file); // Your existing utility
+    const imageParts = [
+      {
+        inlineData: {
+          data: base64Data, // Remove prefix
+          mimeType: file.type, // image/jpeg or image/png
+        },
+      },
+    ];
+
+    const prompt = `You are an expert in waste management and recycling. Analyze this image and provide:
+1. The type of waste (e.g., plastic, paper, glass, metal, organic)
+2. An estimate of the quantity or amount (in kg or liters)
+3. Your confidence level in this assessment (as a percentage)
+
+Respond in JSON format like this:
+{
+  "wasteType": "type of waste",
+  "quantity": "estimated quantity with unit",
+  "confidence": confidence level as a number between 0 and 1
+}`;
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }, ...imageParts] }],
+    });
+
+    const output = result.response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    // Extract JSON from text
+    const jsonMatch = output.match(/\{[\s\S]*?\}/);
+    if (!jsonMatch) throw new Error("Invalid Gemini response format.");
+
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    setWasteType(parsed.wasteType || "Unknown");
+setAmount(parsed.quantity || "Unknown");
+
+setNewReport((prev) => ({
+  ...prev,
+  type: parsed.wasteType || "Unknown",
+  amount: parsed.quantity || "Unknown",
+}));
+
+    setVerificationStatus("success");
+    toast.success("Waste verified successfully");
+
+  } catch (err) {
+    console.error("Gemini verification error:", err);
+    setVerificationStatus("failure");
+    toast.error("Failed to verify waste");
   }
+};
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (verificationStatus !== "success" || !user) {
+      toast.error("Please verify the waste before submitting or log in.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await axios.post("http://localhost:5000/api/reports", {
+        userId: user?.id,
+        location: newReport?.location?.trim(),
+        type: wasteType?.trim(),
+        amount: amount?.trim(),
+        imageBase64: preview || null,
+        verificationResult: verificationResult ? JSON.stringify(verificationResult) : null,
+      });
+
+      toast.success("Report submitted successfully!");
+      setLocation("");
+      setWasteType("Verified waste type");
+      setAmount("Verified amount");
+      setFile(null);
+      setPreview(null);
+      setVerificationStatus("idle");
+      setVerificationResult(null);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      toast.error("Failed to submit report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col max-w-2xl mx-auto p-6 bg-white rounded-lg">
-      <div
-        className={`border-2 border-dashed ${dragActive ? "border-green-500" : "border-green-300"} rounded-lg p-6 flex flex-col items-center justify-center min-h-[150px] ${dragActive ? "bg-green-50" : "bg-white"}`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-      >
-        <label htmlFor="file-upload" className="cursor-pointer w-full text-center">
-          <div className="flex flex-col items-center justify-center">
-            <Upload className="w-8 h-8 text-gray-400 mb-2" />
-            <p className="text-green-500 font-medium text-lg">Upload a file or drag and drop</p>
-            <p className="text-gray-500 text-sm mt-1">PNG, JPG, GIF up to 10MB</p>
+    <div className="p-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
+      
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg mb-12">
+        <div className="mb-8">
+          <label htmlFor="waste-image" className="block text-lg font-medium text-gray-700 mb-2">
+            Upload Waste Image
+          </label>
+          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-green-500 transition-colors duration-300">
+            <div className="space-y-1 text-center">
+              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+              <div className="flex text-sm text-gray-600">
+                <label
+                  htmlFor="waste-image"
+                  className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-green-500"
+                >
+                  <span>Upload a file</span>
+                  <input id="waste-image" name="waste-image" type="file" className="sr-only" onChange={handleFileChange} accept="image/*" />
+                </label>
+                <p className="pl-1">or drag and drop</p>
+              </div>
+              <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+            </div>
+          </div>
+        </div>
+        
+        {preview && (
+          <div className="mt-4 mb-8">
+            <img src={preview} alt="Waste preview" className="max-w-full h-auto rounded-xl shadow-md" />
+          </div>
+        )}
+        
+        <Button 
+          type="button" 
+          onClick={verifyWaste} 
+          className="w-full mb-8 bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg rounded-xl transition-colors duration-300" 
+          disabled={!file || verificationStatus === 'verifying'}
+        >
+          {verificationStatus === 'verifying' ? (
+            <>
+              <Loader className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+              Verifying...
+            </>
+          ) : 'Verify Waste'}
+        </Button>
+
+        {verificationStatus === 'success' && verificationResult && (
+          <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-8 rounded-r-xl">
+            <div className="flex items-center">
+              <CheckCircle className="h-6 w-6 text-green-400 mr-3" />
+              <div>
+                <h3 className="text-lg font-medium text-green-800">Verification Successful</h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <p>Waste Type: {verificationResult.wasteType}</p>
+                  <p>Quantity: {verificationResult.quantity}</p>
+                  <p>Confidence: {(verificationResult.confidence * 100).toFixed(2)}%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+            {isLoaded ? (
+              <StandaloneSearchBox
+                onLoad={onLoad}
+                onPlacesChanged={onPlacesChanged}
+              >
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={newReport.location}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
+                  placeholder="Enter waste location"
+                />
+              </StandaloneSearchBox>
+            ) : (
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={newReport.location}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
+                placeholder="Enter waste location"
+              />
+            )}
+          </div>
+          <div>
+            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">Waste Type</label>
             <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              accept=".png,.jpg,.jpeg,.gif"
-              onChange={handleFileChange}
+              type="text"
+              id="type"
+              name="type"
+              value={newReport.type}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-gray-100"
+              placeholder="Verified waste type"
+              readOnly
             />
           </div>
-        </label>
-        {file && <div className="mt-2 text-sm text-gray-600">File selected: {file.name}</div>}
+          <div>
+            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">Estimated Amount</label>
+            <input
+              type="text"
+              id="amount"
+              name="amount"
+              value={newReport.amount}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-gray-100"
+              placeholder="Verified amount"
+              readOnly
+            />
+          </div>
+        </div>
+        <Button 
+          type="submit" 
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg rounded-xl transition-colors duration-300 flex items-center justify-center"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+              Submitting...
+            </>
+          ) : 'Submit Report'}
+        </Button>
+      </form>
+
+      <h2 className="text-3xl font-semibold mb-6 text-gray-800">Recent Reports</h2>
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="max-h-96 overflow-y-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 sticky top-0">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {reports.map((report) => (
+                <tr key={report.id} className="hover:bg-gray-50 transition-colors duration-200">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <MapPin className="inline-block w-4 h-4 mr-2 text-green-500" />
+                    {report.location}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.wasteType}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.amount}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.createdAt}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <button
-        className="mt-6 w-full bg-blue-400 hover:bg-blue-500 text-white py-3 px-4 rounded-lg font-medium"
-        onClick={verifyWaste}
-      >
-        Verify Waste
-      </button>
-
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-        <div>
-          <label className="block text-gray-700 mb-2">Location</label>
-          <input
-            type="text"
-            placeholder="Enter waste location"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-2">Waste Type</label>
-          <input
-            type="text"
-            className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none"
-            value={wasteType}
-            disabled
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-2">Estimated Amount</label>
-          <input
-            type="text"
-            className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none"
-            value={amount}
-            disabled
-          />
-        </div>
-      </div>
-
-      <button
-        className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium"
-        onClick={submitReport}
-      >
-        Submit Report
-      </button>
     </div>
   )
 }
-

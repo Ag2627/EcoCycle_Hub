@@ -89,16 +89,34 @@ const LoginPage = () => {
   console.log(user);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-6 shadow-md">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold">Login</h1>
-          <p className="mt-2 text-gray-600">Welcome back! Please login to your account</p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#f6fcf7] p-4">
+      <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-6 shadow-md border">
+        <div className="flex flex-col items-center space-y-2">
+          <div className="bg-green-100 p-3 rounded-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8c1.657 0 3 1.567 3 3.5S13.657 15 12 15s-3-1.567-3-3.5S10.343 8 12 8z"
+              />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-semibold text-green-700">
+            Welcome to <span className="text-blue-800 font-bold">RecycleConnect</span>
+          </h1>
+          <p className="text-gray-600 text-sm">Sign in to continue</p>
         </div>
-
-        <form className="space-y-6" onSubmit={onSubmit}>
+  
+        <form className="space-y-6 pt-2" onSubmit={onSubmit}>
           <div className="space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -106,19 +124,19 @@ const LoginPage = () => {
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="Enter your email..."
+                  placeholder="name@example.com"
                   value={loginInfo.email}
                   onChange={handleChange}
-                  className="pl-10"
+                  className="pl-10 bg-green-50"
                   required
                 />
               </div>
             </div>
-
-            <div className="space-y-2">
+  
+            <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                <Link to="/forgot-password" className="text-sm text-green-600 hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -128,10 +146,10 @@ const LoginPage = () => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   name="password"
-                  placeholder="Enter your password..."
+                  placeholder="••••••••"
                   value={loginInfo.password}
                   onChange={handleChange}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 bg-green-50"
                   required
                 />
                 <button
@@ -144,25 +162,30 @@ const LoginPage = () => {
               </div>
             </div>
           </div>
-
-         <Button type="submit" className="w-full bg-black text-white" disabled={isLoading}>
-             {isLoading ? "Logging in..." : "Login"}
-           </Button>
-         </form>
-         <div className="relative flex items-center justify-center">
-           <Separator className="absolute w-full" />
-           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
-         </div>
-
+  
+          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Sign In"}
+          </Button>
+        </form>
+  
+        <div className="relative flex items-center justify-center my-4">
+          <Separator className="absolute w-full" />
+          <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
+        </div>
+  
         <div className="flex justify-center">
           <GoogleLogin onSuccess={handleGoogleLogin} onError={handleGoogleFailure} />
         </div>
-        <div className="text-center text-sm">
-          Don&apos;t have an account? <Link to="/auth/signup" className="text-blue-600 hover:underline">Sign up</Link>
-        </div>
+  
+        <p className="text-center text-xs text-gray-500 pt-4">
+          By signing in, you agree to our{" "}
+          <a href="/terms" className="text-green-700 underline">Terms of Service</a> and{" "}
+          <a href="/privacy" className="text-green-700 underline">Privacy Policy</a>
+        </p>
       </div>
     </div>
   );
-};
+  
+}  
 
 export default LoginPage;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, Leaf, LogIn } from "lucide-react";
+import clsx from "clsx";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -8,13 +9,8 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -28,76 +24,71 @@ const Navbar = () => {
 
   return (
     <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.8)" : "transparent",
-        backdropFilter: isScrolled ? "blur(10px)" : "none",
-        boxShadow: isScrolled ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none",
-        padding: isScrolled ? "12px 0" : "20px 0",
-        transition: "all 0.3s ease",
-      }}
+      className={clsx(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        isScrolled
+          ? "bg-white/80 backdrop-blur shadow-md py-3"
+          : "bg-transparent py-5"
+      )}
     >
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Link to="/user/dashboard" style={{ display: "flex", alignItems: "center", color: "#1B5E20", fontSize: "20px", fontWeight: "bold", textDecoration: "none" }}>
-          <Leaf size={28} style={{ marginRight: "8px" }} />
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+        <Link to="/user/dashboard" className="flex items-center text-green-800 font-bold text-xl">
+          <Leaf size={28} className="mr-2" />
           RecycleConnect
         </Link>
 
         {/* Desktop Navigation */}
-        <div style={{ display: "none", alignItems: "center", gap: "24px" }} className="desktop-menu">
-          {navLinks.map((link) => (
-            <Link key={link.path} to={link.path} style={{ color: "#333", textDecoration: "none", fontSize: "16px", fontWeight: "500" }}>
-              {link.name}
-            </Link>
-          ))}
-          <Link to="/" style={{ backgroundColor: "#1B5E20", color: "#fff", padding: "8px 16px", borderRadius: "4px", textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}>
-            <LogIn size={18} />
-            Logout
-          </Link>
-        </div>
-
-        {/* Mobile Navigation Toggle */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          style={{ display: "block", background: "none", border: "none", cursor: "pointer" }}
-          aria-label="Toggle menu"
-          className="mobile-menu-button"
-        >
-          {isMenuOpen ? <X size={24} style={{ color: "#333" }} /> : <Menu size={24} style={{ color: "#333" }} />}
-        </button>
-      </div>
-
-      {/* Mobile Navigation Menu */}
-      <div
-        style={{
-          position: "fixed",
-          inset: "0",
-          zIndex: 40,
-          backgroundColor: "#fff",
-          paddingTop: "80px",
-          transform: isMenuOpen ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 0.3s ease-in-out",
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px", padding: "20px" }}>
+        <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.path}
               to={link.path}
-              style={{ fontSize: "20px", fontWeight: "500", color: "#333", textDecoration: "none", paddingBottom: "8px", borderBottom: "1px solid #eee" }}
+              className="text-gray-800 hover:text-green-700 font-medium transition-colors"
+            >
+              {link.name}
+            </Link>
+          ))}
+          <Link
+            to="/"
+            className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded flex items-center gap-2 transition-colors"
+          >
+            <LogIn size={18} />
+            Logout
+          </Link>
+        </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden focus:outline-none"
+          aria-label="Toggle Menu"
+        >
+          {isMenuOpen ? <X size={24} className="text-gray-800" /> : <Menu size={24} className="text-gray-800" />}
+        </button>
+      </div>
+
+      {/* Mobile Navigation */}
+      <div
+        className={clsx(
+          "fixed inset-0 z-40 bg-white transition-transform duration-300 md:hidden",
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <div className="pt-20 px-6 flex flex-col gap-6">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
               onClick={() => setIsMenuOpen(false)}
+              className="text-gray-800 text-lg font-medium border-b pb-2 border-gray-200"
             >
               {link.name}
             </Link>
           ))}
           <Link
             to="/auth"
-            style={{ backgroundColor: "#1B5E20", color: "#fff", padding: "12px", borderRadius: "4px", textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
             onClick={() => setIsMenuOpen(false)}
+            className="bg-green-700 hover:bg-green-800 text-white py-3 rounded flex items-center justify-center gap-2 transition-colors"
           >
             <LogIn size={20} />
             Sign In

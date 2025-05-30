@@ -3,16 +3,18 @@ import Report from "../Model/Report.js";
 // Controller to create a new report
 export const createReport = async (req, res) => {
     try {
-        const { location, type, amount } = req.body;
+        const { userId, location, type, amount, verificationResult } = req.body;
 
-        if (!location || !type || !amount) {
+        if (!userId || !location || !type || !amount || !verificationResult) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
         const newReport = new Report({
+            userId,
             location,
             type,
             amount,
+            verificationResult,
             createdAt: new Date(),
         });
 
@@ -24,6 +26,7 @@ export const createReport = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 // Controller to get all reports
 export const getAllReports = async (req, res) => {

@@ -6,6 +6,7 @@ import SignupPage from './components/Registration/Signup/Signup';
 import GetStarted from './components/Registration/GetStarted';
 import ReportPage from './components/report/page';
 import WasteSorting from './components/SortingGuide/WasteSorting';
+//import RecyclingMap from './components/RecyclingCenters/RecyclingMap';
 const router=createBrowserRouter(
   [
     {path:'/',element:<GetStarted/>},
@@ -16,7 +17,8 @@ const router=createBrowserRouter(
     {path:'user/report',element:<ReportPage/>},
     {path:'user/wastesorting',element:<WasteSorting/>},  
     
-    {path:'user/rewards', element:<RewardsPage/>}
+    {path:'user/rewards', element:<RewardsPage/>},
+    //{path:'user/recyclingcenters',element:<RecyclingMap/>}
 
   ]
 )

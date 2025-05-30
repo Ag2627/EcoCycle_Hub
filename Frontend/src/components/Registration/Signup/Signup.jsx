@@ -14,43 +14,39 @@ const SignupPage = () => {
     password: "",
     phone: "",
     address: "",
-    role:"user"
+    role: "user",
   });
 
   const navigate = useNavigate();
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setSignupInfo({ ...signupInfo, [e.target.name]: e.target.value });
   };
+
   const handleRoleChange = (e) => {
     setSignupInfo({ ...signupInfo, role: e.target.value });
   };
 
-  function onSubmit(event) {
+  const onSubmit = (event) => {
     event.preventDefault();
+    setIsLoading(true);
     dispatch(registerUser(signupInfo)).then((data) => {
+      setIsLoading(false);
       if (data?.payload?.success) {
-        toast({
-          title: data?.payload?.message,
-        });
+        toast({ title: data?.payload?.message });
         navigate("/user/dashboard");
       } else {
-        toast({
-          title: data?.payload?.message,
-          variant: "destructive",
-        });
+        toast({ title: data?.payload?.message, variant: "destructive" });
       }
     });
-  }
-  
-  
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-lg">
-        <h1 className="text-3xl font-bold text-center">Create Account</h1>
-        <form onSubmit={onSubmit} className="space-y-4 mt-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#f6fcf7] p-4">
+      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-xl border">
+        <h1 className="text-3xl font-bold text-center text-green-700">Create Account</h1>
+        <form onSubmit={onSubmit} className="space-y-4 mt-6">
           {[
             { label: "Full Name", type: "text", name: "name", icon: <User /> },
             { label: "Email", type: "email", name: "email", icon: <Mail /> },
@@ -60,7 +56,7 @@ const SignupPage = () => {
             <div key={name} className="relative">
               <span className="absolute left-3 top-3 text-gray-400">{icon}</span>
               <input
-                className="pl-10 w-full border p-2 rounded"
+                className="pl-10 w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                 type={type}
                 name={name}
                 placeholder={label}
@@ -70,12 +66,13 @@ const SignupPage = () => {
               />
             </div>
           ))}
+
           <div className="relative">
             <span className="absolute left-3 top-3 text-gray-400">
               <Lock />
             </span>
             <input
-              className="pl-10 pr-10 w-full border p-2 rounded"
+              className="pl-10 pr-10 w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
@@ -91,35 +88,37 @@ const SignupPage = () => {
               {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
-          <div className="flex space-x-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="role"
-                value="user"
-                checked={signupInfo.role === "user"}
-                onChange={handleRoleChange}
-              />
-              <span className="ml-2">User</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="role"
-                value="admin"
-                checked={signupInfo.role === "admin"}
-                onChange={handleRoleChange}
-              />
-              <span className="ml-2">Admin</span>
-            </label>
+
+          <div className="flex space-x-6 pt-2">
+            {["user", "admin"].map((role) => (
+              <label key={role} className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="role"
+                  value={role}
+                  checked={signupInfo.role === role}
+                  onChange={handleRoleChange}
+                  className="accent-green-600"
+                />
+                <span className="ml-2 capitalize text-gray-700">{role}</span>
+              </label>
+            ))}
           </div>
-          <button type="submit" className="w-full bg-black text-white p-2 rounded" disabled={isLoading}>
+
+          <button
+            type="submit"
+            className={`w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded transition-all duration-200 ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={isLoading}
+          >
             {isLoading ? "Creating account..." : "Create Account"}
           </button>
         </form>
+
         <p className="text-center text-sm mt-4">
           Already have an account?{" "}
-          <Link to="/auth/login" className="text-blue-600 hover:underline">
+          <Link to="/auth/login" className="text-green-600 hover:underline font-medium">
             Login
           </Link>
         </p>
