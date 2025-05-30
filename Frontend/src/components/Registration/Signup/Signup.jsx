@@ -1,55 +1,81 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, User, Lock, Phone, MapPin } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { registerUser } from "@/redux/store/auth-slice";
-import { useDispatch } from "react-redux";
+
+import { registerUser, clearAuthError } from "@/redux/store/auth-slice";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [signupInfo, setSignupInfo] = useState({
     name: "",
     email: "",
     password: "",
     phone: "",
     address: "",
-    role:"user"
+    role: "user",
   });
 
   const navigate = useNavigate();
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
+  const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
+  const showToast = (title, description, variant = "default") => {
+  toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
+    description: title,
+  });
+};
+
 
   const handleChange = (e) => {
     setSignupInfo({ ...signupInfo, [e.target.name]: e.target.value });
   };
+
   const handleRoleChange = (e) => {
     setSignupInfo({ ...signupInfo, role: e.target.value });
   };
 
-  function onSubmit(event) {
+  useEffect(() => {
+    if (authError) {
+      showToast("Signup Failed", authError, "destructive");
+      dispatch(clearAuthError());
+    }
+  }, [authError, dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      showToast("Signup Successful!", "Redirecting to dashboard...", "success");
+      navigate("/user/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const onSubmit = (event) => {
     event.preventDefault();
+    if (!signupInfo.name || !signupInfo.email || !signupInfo.password) {
+      showToast("Validation Error", "Name, Email, and Password are required.", "destructive");
+      return;
+    }
+
+    if (signupInfo.password.length < 6) {
+      showToast("Validation Error", "Password must be at least 6 characters.", "destructive");
+      return;
+    }
+
     dispatch(registerUser(signupInfo)).then((data) => {
       if (data?.payload?.success) {
-        toast({
-          title: data?.payload?.message,
-        });
         navigate("/user/dashboard");
-      } else {
-        toast({
-          title: data?.payload?.message,
-          variant: "destructive",
-        });
       }
     });
-  }
-  
-  
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md bg-white p-6 shadow-md rounded-lg">
         <h1 className="text-3xl font-bold text-center">Create Account</h1>
+
         <form onSubmit={onSubmit} className="space-y-4 mt-4">
           {[
             { label: "Full Name", type: "text", name: "name", icon: <User /> },
@@ -70,6 +96,8 @@ const SignupPage = () => {
               />
             </div>
           ))}
+
+          {/* Password Field */}
           <div className="relative">
             <span className="absolute left-3 top-3 text-gray-400">
               <Lock />
@@ -91,6 +119,8 @@ const SignupPage = () => {
               {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
+
+          {/* Role Radio */}
           <div className="flex space-x-4">
             <label className="flex items-center">
               <input
@@ -113,10 +143,17 @@ const SignupPage = () => {
               <span className="ml-2">Admin</span>
             </label>
           </div>
-          <button type="submit" className="w-full bg-black text-white p-2 rounded" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create Account"}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-black text-white p-2 rounded"
+            disabled={authIsLoading}
+          >
+            {authIsLoading ? "Creating account..." : "Create Account"}
           </button>
         </form>
+
         <p className="text-center text-sm mt-4">
           Already have an account?{" "}
           <Link to="/auth/login" className="text-blue-600 hover:underline">

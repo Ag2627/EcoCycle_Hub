@@ -11,6 +11,9 @@ const ReportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  address:{
+    type: String,
+  },
   type: {
     type: String,
     required: true,
