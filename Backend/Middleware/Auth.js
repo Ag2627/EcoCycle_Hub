@@ -1,18 +1,23 @@
 import jwt from "jsonwebtoken";
-
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const ensureAuthenticated = (req, res, next) => {
-    const auth = req.headers['authorization'];
-    if (!auth) {
-        return res.status(403)
-            .json({ message: 'Unauthorized, JWT token is require' });
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1];
+
+    if (token == null) {
+        req.user = null; // No token provided
+        return next(); // Continue, checkAuthentication will handle it
     }
-    try {
-        const decoded = jwt.verify(auth, process.env.JWT_SECRET);
-        req.user = decoded;
+
+    jwt.verify(token, JWT_SECRET, (err, userPayload) => {
+        if (err) {
+            req.user = null; // Token invalid (e.g., expired, malformed)
+        } else {
+            req.user = userPayload; // Token valid, payload is { userId, email, role }
+            req.token = token; // Pass the token along if needed
+        }
         next();
-    } catch (err) {
-        return res.status(403)
-            .json({ message: 'Unauthorized, JWT token wrong or expired' });
-    }
-}
+    });
+};
+

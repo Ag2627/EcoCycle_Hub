@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, User, Lock, Phone, MapPin } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { registerUser } from "@/redux/store/auth-slice";
-import { useDispatch } from "react-redux";
+
+import { registerUser, clearAuthError } from "@/redux/store/auth-slice";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [signupInfo, setSignupInfo] = useState({
     name: "",
     email: "",
@@ -19,6 +19,19 @@ const SignupPage = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+<<<<<<< HEAD
+=======
+  const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
+  const showToast = (title, description, variant = "default") => {
+  toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
+    description: title,
+  });
+};
+
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
 
   const handleChange = (e) => {
     setSignupInfo({ ...signupInfo, [e.target.name]: e.target.value });
@@ -28,25 +41,66 @@ const SignupPage = () => {
     setSignupInfo({ ...signupInfo, role: e.target.value });
   };
 
+<<<<<<< HEAD
   const onSubmit = (event) => {
     event.preventDefault();
     setIsLoading(true);
+=======
+  useEffect(() => {
+    if (authError) {
+      showToast("Signup Failed", authError, "destructive");
+      dispatch(clearAuthError());
+    }
+  }, [authError, dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      showToast("Signup Successful!", "Redirecting to dashboard...", "success");
+      navigate("/user/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+    if (!signupInfo.name || !signupInfo.email || !signupInfo.password) {
+      showToast("Validation Error", "Name, Email, and Password are required.", "destructive");
+      return;
+    }
+
+    if (signupInfo.password.length < 6) {
+      showToast("Validation Error", "Password must be at least 6 characters.", "destructive");
+      return;
+    }
+
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
     dispatch(registerUser(signupInfo)).then((data) => {
       setIsLoading(false);
       if (data?.payload?.success) {
+<<<<<<< HEAD
         toast({ title: data?.payload?.message });
         navigate("/user/dashboard");
       } else {
         toast({ title: data?.payload?.message, variant: "destructive" });
+=======
+        navigate("/user/dashboard");
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
       }
     });
   };
 
   return (
+<<<<<<< HEAD
     <div className="flex min-h-screen items-center justify-center bg-[#f6fcf7] p-4">
       <div className="w-full max-w-md bg-white p-6 shadow-md rounded-xl border">
         <h1 className="text-3xl font-bold text-center text-green-700">Create Account</h1>
         <form onSubmit={onSubmit} className="space-y-4 mt-6">
+=======
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-lg">
+        <h1 className="text-3xl font-bold text-center">Create Account</h1>
+
+        <form onSubmit={onSubmit} className="space-y-4 mt-4">
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
           {[
             { label: "Full Name", type: "text", name: "name", icon: <User /> },
             { label: "Email", type: "email", name: "email", icon: <Mail /> },
@@ -67,6 +121,10 @@ const SignupPage = () => {
             </div>
           ))}
 
+<<<<<<< HEAD
+=======
+          {/* Password Field */}
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
           <div className="relative">
             <span className="absolute left-3 top-3 text-gray-400">
               <Lock />
@@ -89,6 +147,7 @@ const SignupPage = () => {
             </button>
           </div>
 
+<<<<<<< HEAD
           <div className="flex space-x-6 pt-2">
             {["user", "admin"].map((role) => (
               <label key={role} className="flex items-center cursor-pointer">
@@ -113,6 +172,39 @@ const SignupPage = () => {
             disabled={isLoading}
           >
             {isLoading ? "Creating account..." : "Create Account"}
+=======
+          {/* Role Radio */}
+          <div className="flex space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="role"
+                value="user"
+                checked={signupInfo.role === "user"}
+                onChange={handleRoleChange}
+              />
+              <span className="ml-2">User</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="role"
+                value="admin"
+                checked={signupInfo.role === "admin"}
+                onChange={handleRoleChange}
+              />
+              <span className="ml-2">Admin</span>
+            </label>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-black text-white p-2 rounded"
+            disabled={authIsLoading}
+          >
+            {authIsLoading ? "Creating account..." : "Create Account"}
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
           </button>
         </form>
 

@@ -23,6 +23,7 @@ const GetStarted = () => {
               Sign Up
             </Button>
           </Link>
+         
         </div>
       </div>
     </div>

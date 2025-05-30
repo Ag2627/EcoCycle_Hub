@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
-import { useDispatch, useSelector } from "react-redux";
-import { googleLogin, loginUser } from "@/redux/store/auth-slice";
-import { GoogleLogin } from "@react-oauth/google";
-import {jwtDecode} from "jwt-decode";
 
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, googleLogin, clearAuthError } from "@/redux/store/auth-slice";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode"; 
+import { toast } from "sonner";
 const initialState = {
   email: "",
   password: "",
@@ -21,42 +21,49 @@ const initialState = {
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loginInfo, setLoginInfo] = useState(initialState);
-  const {user}= useSelector((state)=>state.auth);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+    const [loginInfo, setLoginInfo] = useState(initialState);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setLoginInfo((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const onSubmit = async (event) => {
-    event.preventDefault();
-    setIsLoading(true);
+    const showToast = (title, description, variant = "default") => {
+  toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
+    description: title,
+  });
+};
 
-    setIsLoading(false);
 
-    dispatch(loginUser(loginInfo)).then((data) => {
-      
-      
-          if (data?.payload?.success) {
-            toast({
-              title: data?.payload?.message,
-            });
-            navigate("/user/dashboard");
-          } else {
-            toast({
-              title: data?.payload?.message,
-              variant: "destructive",
-            });
-          }
-        });
-  };
+    const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector((state) => state.auth);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setLoginInfo((prev) => ({ ...prev, [name]: value }));
+    };
+
+    useEffect(() => {
+        if (authError) {
+            showToast("Login Failed", authError, "destructive");
+            dispatch(clearAuthError());
+        }
+    }, [authError, dispatch]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            const from = location.state?.from?.pathname || "/user/dashboard";
+            showToast("Login Successful", "Redirecting...");
+            navigate(from, { replace: true });
+        }
+    }, [isAuthenticated, navigate, location.state]);
+
+    const onSubmit = (event) => {
+        event.preventDefault();
+        if (!loginInfo.email || !loginInfo.password) {
+            showToast("Validation Error", "Please enter both email and password.", "destructive");
+            return;
+        }
+        dispatch(loginUser(loginInfo));
+}
 
   const handleGoogleLogin = async (googleUser) => {
     try {
@@ -64,29 +71,25 @@ const LoginPage = () => {
         dispatch(googleLogin({ email: decoded.email })).then((data) => {  
     
           if (data?.payload?.success) {
-            toast({ 
-              title: data?.payload?.message,
-              }); 
+            showToast("Google Login success", "succesful login", "success");
 
             navigate("/user/dashboard");
           } else {  
-            toast({
-              title: data?.payload?.message,
-              variant: "destructive",
-            }); 
+            showToast("Google Login Error", data?.payload?.message || "Could not process Google login.", "destructive");
           }
         });
 
       }
     catch(error){
       console.log(error);
+      showToast("Google Login Error", error.message || "Could not process Google login.", "destructive");
     };
   }
   const handleGoogleFailure = () => {
-    toast({ title: "Google login failed", variant: "destructive" });
+    showToast("Google Login Failed", "Google authentication was unsuccessful.", "destructive");
   };
 
-  console.log(user);
+
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#f6fcf7] p-4">
@@ -162,6 +165,7 @@ const LoginPage = () => {
               </div>
             </div>
           </div>
+<<<<<<< HEAD
   
           <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" disabled={isLoading}>
             {isLoading ? "Logging in..." : "Sign In"}
@@ -173,6 +177,18 @@ const LoginPage = () => {
           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
         </div>
   
+=======
+
+         <Button type="submit" className="w-full bg-black text-white" disabled={authIsLoading}>
+             {authIsLoading ? "Logging in..." : "Login"}
+           </Button>
+         </form>
+         <div className="relative flex items-center justify-center">
+           <Separator className="absolute w-full" />
+           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
+         </div>
+
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
         <div className="flex justify-center">
           <GoogleLogin onSuccess={handleGoogleLogin} onError={handleGoogleFailure} />
         </div>

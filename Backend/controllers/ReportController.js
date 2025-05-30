@@ -1,11 +1,21 @@
 import Report from "../Model/Report.js";
+import dotenv from 'dotenv';
+// Controller to verify waste using Gemini AI
+import axios from "axios";
+dotenv.config();
 
 // Controller to create a new report
 export const createReport = async (req, res) => {
     try {
+<<<<<<< HEAD
         const { userId, location, type, amount, verificationResult } = req.body;
 
         if (!userId || !location || !type || !amount || !verificationResult) {
+=======
+        const { location, type, amount, address, imageUrl, userId } = req.body;
+
+        if (!location || !type || !amount || !imageUrl || !userId) {
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -13,8 +23,13 @@ export const createReport = async (req, res) => {
             userId,
             location,
             type,
+            address,
             amount,
+<<<<<<< HEAD
             verificationResult,
+=======
+            imageUrl,
+>>>>>>> f4a5bde73100369344612b743c9ed4116719244b
             createdAt: new Date(),
         });
 
@@ -54,6 +69,21 @@ export const getReportById = async (req, res) => {
     }
 };
 
+//get reports by user id
+export const getReportByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const report =  await Report.find({ userId: userId });
+        if (!report) {
+            return res.status(404).json({ message: "Report not found" });
+        }
+        res.status(200).json(report);
+    } catch (error) {
+        console.error("Error fetching report:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
 // Controller to delete a report by ID
 export const deleteReport = async (req, res) => {
     try {
@@ -71,26 +101,4 @@ export const deleteReport = async (req, res) => {
     }
 };
 
-// Controller to verify waste using Gemini AI
-export const verifyWaste = async (req, res) => {
-    try {
-        const { imageBase64 } = req.body;
 
-        if (!imageBase64) {
-            return res.status(400).json({ message: "Image data is required" });
-        }
-
-        // Simulating AI response (replace this with actual API integration)
-        const simulatedAIResponse = {
-            wasteType: "Plastic",
-            quantity: "5 kg",
-            confidence: 0.92,
-        };
-
-        res.status(200).json({ message: "Verification successful", data: simulatedAIResponse });
-
-    } catch (error) {
-        console.error("Error verifying waste:", error);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-};

@@ -3,18 +3,21 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import Connection from "./Database/db.js"
-import bodyParser from "body-parser"
+import multer from "multer";
 import Authrouter from "./Routes/AuthRouter.js";
 
 import Reportrouter from "./Routes/ReportRouter.js";
 
 import rewardRouter from "./Routes/RewardRoutes.js";
+import axios from "axios";
 
 dotenv.config();
 const app = express();
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
 app.use( cors({
     origin: "http://localhost:5173",
     methods: ["GET", "POST", "DELETE", "PUT"],
@@ -40,6 +43,10 @@ app.use("/reports", Reportrouter);
 
 
 app.use("/api/rewards", rewardRouter);
+
+
+
+
 
 
 // MongoDB Connection
