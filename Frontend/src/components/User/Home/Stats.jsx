@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 const statsData = [
   { 
@@ -61,7 +62,7 @@ const Stats = () => {
   const animateCounters = () => {
     const duration = 2000; // ms
     const framesPerSecond = 60;
-    const totalFrames = (duration / 1000) * framesPerSecond;
+    const totalFrames = duration / 1000 * framesPerSecond;
     
     let frame = 0;
     
@@ -69,11 +70,16 @@ const Stats = () => {
       frame++;
       
       const progress = Math.min(frame / totalFrames, 1);
+      // Easing function: cubic bezier easing
       const eased = progress < 0.5 
         ? 4 * progress * progress * progress 
         : 1 - Math.pow(-2 * progress + 2, 3) / 2;
       
-      setCounters(statsData.map((stat) => Math.round(eased * stat.value)));
+      setCounters(
+        statsData.map((stat, index) => {
+          return Math.round(eased * stat.value);
+        })
+      );
       
       if (frame === totalFrames) {
         clearInterval(timer);
@@ -85,7 +91,10 @@ const Stats = () => {
     <section id="stats" className="py-20 bg-eco-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-eco-700 to-water-700 text-transparent bg-clip-text">
+          <h2 className={cn(
+            "text-3xl font-bold mb-4",
+            "bg-gradient-to-r from-eco-700 to-water-700 text-transparent bg-clip-text"
+          )}>
             Our Impact So Far
           </h2>
           <p className="text-foreground/70 text-lg">
@@ -98,9 +107,16 @@ const Stats = () => {
           {statsData.map((stat, index) => (
             <div 
               key={index}
-              className="bg-white rounded-xl shadow-sm p-6 text-center border border-gray-100 hover:border-eco-200 transition-all duration-300 hover:shadow-md"
+              className={cn(
+                "bg-white rounded-xl shadow-sm p-6 text-center",
+                "border border-gray-100 hover:border-eco-200",
+                "transition-all duration-300 hover:shadow-md"
+              )}
             >
-              <h3 className={`text-4xl font-bold mb-2 bg-gradient-to-r ${stat.color} text-transparent bg-clip-text`}>
+              <h3 className={cn(
+                "text-4xl font-bold mb-2",
+                `bg-gradient-to-r ${stat.color} text-transparent bg-clip-text`
+              )}>
                 {stat.prefix}{counters[index].toLocaleString()}{stat.suffix}
               </h3>
               <p className="text-foreground/70">{stat.label}</p>
