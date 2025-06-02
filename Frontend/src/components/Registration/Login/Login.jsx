@@ -1,95 +1,87 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, googleLogin, clearAuthError } from "@/redux/store/auth-slice";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-import { useDispatch, useSelector } from "react-redux";
-import { loginUser, googleLogin, clearAuthError } from "@/redux/store/auth-slice";
-import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode"; 
-import { toast } from "sonner";
 const initialState = {
   email: "",
   password: "",
 };
 
-
-
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-    const [loginInfo, setLoginInfo] = useState(initialState);
+  const [loginInfo, setLoginInfo] = useState(initialState);
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const showToast = (title, description, variant = "default") => {
-  toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
-    description: title,
-  });
-};
+  const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector((state) => state.auth);
 
+  const showToast = (title, description, variant = "default") => {
+    toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
+      description: title,
+    });
+  };
 
-    const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (authError) {
+      showToast("Login Failed", authError, "destructive");
+      dispatch(clearAuthError());
+    }
+  }, [authError, dispatch]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setLoginInfo((prev) => ({ ...prev, [name]: value }));
-    };
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || "/user/dashboard";
+      showToast("Login Successful", "Redirecting...");
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location.state]);
 
-    useEffect(() => {
-        if (authError) {
-            showToast("Login Failed", authError, "destructive");
-            dispatch(clearAuthError());
-        }
-    }, [authError, dispatch]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginInfo((prev) => ({ ...prev, [name]: value }));
+  };
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            const from = location.state?.from?.pathname || "/user/dashboard";
-            showToast("Login Successful", "Redirecting...");
-            navigate(from, { replace: true });
-        }
-    }, [isAuthenticated, navigate, location.state]);
-
-    const onSubmit = (event) => {
-        event.preventDefault();
-        if (!loginInfo.email || !loginInfo.password) {
-            showToast("Validation Error", "Please enter both email and password.", "destructive");
-            return;
-        }
-        dispatch(loginUser(loginInfo));
-}
+  const onSubmit = (event) => {
+    event.preventDefault();
+    if (!loginInfo.email || !loginInfo.password) {
+      showToast("Validation Error", "Please enter both email and password.", "destructive");
+      return;
+    }
+    dispatch(loginUser(loginInfo));
+  };
 
   const handleGoogleLogin = async (googleUser) => {
     try {
-        const decoded = jwtDecode(googleUser.credential); 
-        dispatch(googleLogin({ email: decoded.email })).then((data) => {  
-    
-          if (data?.payload?.success) {
-            showToast("Google Login success", "succesful login", "success");
-
-            navigate("/user/dashboard");
-          } else {  
-            showToast("Google Login Error", data?.payload?.message || "Could not process Google login.", "destructive");
-          }
-        });
-
-      }
-    catch(error){
-      console.log(error);
+      const decoded = jwtDecode(googleUser.credential);
+      dispatch(googleLogin({ email: decoded.email })).then((data) => {
+        if (data?.payload?.success) {
+          showToast("Google Login Success", "Login successful", "success");
+          navigate("/user/dashboard");
+        } else {
+          showToast("Google Login Error", data?.payload?.message || "Could not process Google login.", "destructive");
+        }
+      });
+    } catch (error) {
+      console.error(error);
       showToast("Google Login Error", error.message || "Could not process Google login.", "destructive");
-    };
-  }
+    }
+  };
+
   const handleGoogleFailure = () => {
     showToast("Google Login Failed", "Google authentication was unsuccessful.", "destructive");
   };
-
-
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#f6fcf7] p-4">
@@ -116,9 +108,10 @@ const LoginPage = () => {
           </h1>
           <p className="text-gray-600 text-sm">Sign in to continue</p>
         </div>
-  
+
         <form className="space-y-6 pt-2" onSubmit={onSubmit}>
           <div className="space-y-4">
+            {/* Email Field */}
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -135,7 +128,8 @@ const LoginPage = () => {
                 />
               </div>
             </div>
-  
+
+            {/* Password Field */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
@@ -165,43 +159,42 @@ const LoginPage = () => {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-  
-          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Sign In"}
+
+          {/* Submit Button */}
+          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" disabled={authIsLoading}>
+            {authIsLoading ? "Logging in..." : "Sign In"}
           </Button>
         </form>
-  
+
+        {/* Separator */}
         <div className="relative flex items-center justify-center my-4">
           <Separator className="absolute w-full" />
           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
         </div>
-  
-=======
 
-         <Button type="submit" className="w-full bg-black text-white" disabled={authIsLoading}>
-             {authIsLoading ? "Logging in..." : "Login"}
-           </Button>
-         </form>
-         <div className="relative flex items-center justify-center">
-           <Separator className="absolute w-full" />
-           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
-         </div>
-
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
+        {/* Google Login */}
         <div className="flex justify-center">
           <GoogleLogin onSuccess={handleGoogleLogin} onError={handleGoogleFailure} />
         </div>
-  
+
+        {/* Terms */}
         <p className="text-center text-xs text-gray-500 pt-4">
           By signing in, you agree to our{" "}
           <a href="/terms" className="text-green-700 underline">Terms of Service</a> and{" "}
           <a href="/privacy" className="text-green-700 underline">Privacy Policy</a>
         </p>
+
+        {/* Sign up Link */}
+        <p className="text-center text-sm mt-2">
+          Don't have an account?{" "}
+          <Link to="/auth/signup" className="text-green-600 hover:underline font-medium">
+            Create one
+          </Link>
+        </p>
       </div>
     </div>
   );
-  
-}  
+};
 
 export default LoginPage;
+

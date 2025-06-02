@@ -1,21 +1,16 @@
 import Report from "../Model/Report.js";
 import dotenv from 'dotenv';
-// Controller to verify waste using Gemini AI
 import axios from "axios";
+
 dotenv.config();
 
 // Controller to create a new report
 export const createReport = async (req, res) => {
     try {
-<<<<<<< HEAD
-        const { userId, location, type, amount, verificationResult } = req.body;
+        const { userId, location, type, amount, verificationResult, address, imageUrl } = req.body;
 
-        if (!userId || !location || !type || !amount || !verificationResult) {
-=======
-        const { location, type, amount, address, imageUrl, userId } = req.body;
-
-        if (!location || !type || !amount || !imageUrl || !userId) {
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
+        // Validate required fields
+        if (!userId || !location || !type || !amount || !verificationResult || !address || !imageUrl) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -23,13 +18,10 @@ export const createReport = async (req, res) => {
             userId,
             location,
             type,
-            address,
             amount,
-<<<<<<< HEAD
             verificationResult,
-=======
+            address,
             imageUrl,
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
             createdAt: new Date(),
         });
 
@@ -41,7 +33,6 @@ export const createReport = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
-
 
 // Controller to get all reports
 export const getAllReports = async (req, res) => {
@@ -69,17 +60,17 @@ export const getReportById = async (req, res) => {
     }
 };
 
-//get reports by user id
+// Controller to get reports by user ID
 export const getReportByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
-        const report =  await Report.find({ userId: userId });
-        if (!report) {
-            return res.status(404).json({ message: "Report not found" });
+        const reports = await Report.find({ userId });
+        if (!reports || reports.length === 0) {
+            return res.status(404).json({ message: "No reports found for this user" });
         }
-        res.status(200).json(report);
+        res.status(200).json(reports);
     } catch (error) {
-        console.error("Error fetching report:", error);
+        console.error("Error fetching reports:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
@@ -100,5 +91,6 @@ export const deleteReport = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 

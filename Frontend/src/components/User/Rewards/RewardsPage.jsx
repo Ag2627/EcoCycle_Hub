@@ -1,9 +1,12 @@
 'use client'
+
 import { useState, useEffect } from 'react'
 import { Coins, Loader } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-// import { getUserByEmail, getRewardTransactions, getAvailableRewards, redeemReward, createTransaction } from '@/utils/db/actions'
 import { toast } from 'react-hot-toast'
+
+// Uncomment and implement these functions as needed
+// import { getUserByEmail, getRewardTransactions, getAvailableRewards, redeemReward, createTransaction } from '@/utils/db/actions'
 
 export default function RewardsPage() {
   const [user, setUser] = useState(null)
@@ -24,11 +27,11 @@ export default function RewardsPage() {
             const fetchedTransactions = await getRewardTransactions(fetchedUser.id)
             setTransactions(fetchedTransactions)
             const fetchedRewards = await getAvailableRewards(fetchedUser.id)
-            setRewards(fetchedRewards.filter(r => r.cost > 0)) 
+            setRewards(fetchedRewards.filter(r => r.cost > 0))
             const calculatedBalance = fetchedTransactions.reduce((acc, transaction) => {
               return transaction.type.startsWith('earned') ? acc + transaction.amount : acc - transaction.amount
             }, 0)
-            setBalance(Math.max(calculatedBalance, 0)) 
+            setBalance(Math.max(calculatedBalance, 0))
           } else {
             toast.error('User not found. Please log in again.')
           }
@@ -42,8 +45,25 @@ export default function RewardsPage() {
         setLoading(false)
       }
     }
+
     fetchUserDataAndRewards()
   }, [])
+
+  const refreshUserData = async () => {
+    if (user) {
+      const fetchedUser = await getUserByEmail(user.email)
+      if (fetchedUser) {
+        const fetchedTransactions = await getRewardTransactions(fetchedUser.id)
+        setTransactions(fetchedTransactions)
+        const fetchedRewards = await getAvailableRewards(fetchedUser.id)
+        setRewards(fetchedRewards.filter(r => r.cost > 0))
+        const calculatedBalance = fetchedTransactions.reduce((acc, transaction) => {
+          return transaction.type.startsWith('earned') ? acc + transaction.amount : acc - transaction.amount
+        }, 0)
+        setBalance(Math.max(calculatedBalance, 0))
+      }
+    }
+  }
 
   const handleRedeemReward = async (rewardId) => {
     if (!user) {
@@ -88,22 +108,6 @@ export default function RewardsPage() {
     }
   }
 
-  const refreshUserData = async () => {
-    if (user) {
-      const fetchedUser = await getUserByEmail(user.email)
-      if (fetchedUser) {
-        const fetchedTransactions = await getRewardTransactions(fetchedUser.id)
-        setTransactions(fetchedTransactions)
-        const fetchedRewards = await getAvailableRewards(fetchedUser.id)
-        setRewards(fetchedRewards.filter(r => r.cost > 0))
-        const calculatedBalance = fetchedTransactions.reduce((acc, transaction) => {
-          return transaction.type.startsWith('earned') ? acc + transaction.amount : acc - transaction.amount
-        }, 0)
-        setBalance(Math.max(calculatedBalance, 0))
-      }
-    }
-  }
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -113,9 +117,9 @@ export default function RewardsPage() {
   }
 
   return (
-    <div>reward page</div>
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6 text-gray-800">Rewards</h1>
+
       <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 mb-8">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Reward Balance</h2>
         <div className="flex items-center justify-between">
@@ -173,6 +177,7 @@ export default function RewardsPage() {
     </div>
   )
 }
+
 
   
 
