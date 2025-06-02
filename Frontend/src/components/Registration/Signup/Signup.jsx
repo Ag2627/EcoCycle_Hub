@@ -30,6 +30,15 @@ const SignupPage = () => {
     });
   };
 
+
+  const handleChange = (e) => {
+    setSignupInfo({ ...signupInfo, [e.target.name]: e.target.value });
+  };
+
+  const handleRoleChange = (e) => {
+    setSignupInfo({ ...signupInfo, role: e.target.value });
+  };
+
   useEffect(() => {
     if (authError) {
       showToast("Signup Failed", authError, "destructive");
@@ -67,9 +76,22 @@ const SignupPage = () => {
       setIsLoading(false);
       return;
     }
+   try{
 
     dispatch(registerUser(signupInfo)).then((data) => {
       setIsLoading(false);
+        if (data?.payload?.success) {
+                const role = data?.payload?.data?.role; // adjust according to actual payload structure
+                const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+                showToast("Signup Success", "Redirecting...", "success");
+                navigate(redirectPath);
+            } else {
+                showToast("Signup Error", data?.payload?.message || "Could not process Signup.", "destructive");
+            }
+      });
+   }catch(error){
+      showToast("Signup Error", error.message || "Could not process signup.", "destructive");
+    };
       if (data?.payload?.success) {
         toast.success(data.payload.message);
         navigate("/user/dashboard");
@@ -80,6 +102,11 @@ const SignupPage = () => {
   };
 
   return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-lg">
+        <h1 className="text-3xl font-bold text-center">Create Account</h1>
+
+        <form onSubmit={onSubmit} className="space-y-4 mt-4">
     <div className="flex min-h-screen items-center justify-center bg-[#f6fcf7] p-4">
       <div className="w-full max-w-md bg-white p-6 shadow-md rounded-xl border">
         <h1 className="text-3xl font-bold text-center text-green-700">Create Account</h1>
@@ -128,6 +155,37 @@ const SignupPage = () => {
             </button>
           </div>
 
+          {/* Role Radio */}
+          <div className="flex space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="role"
+                value="user"
+                checked={signupInfo.role === "user"}
+                onChange={handleRoleChange}
+              />
+              <span className="ml-2">User</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="role"
+                value="admin"
+                checked={signupInfo.role === "admin"}
+                onChange={handleRoleChange}
+              />
+              <span className="ml-2">Admin</span>
+            </label>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-black text-white p-2 rounded"
+            disabled={authIsLoading}
+          >
+            {authIsLoading ? "Creating account..." : "Create Account"}
           {/* Role Radio */}
           <div className="flex space-x-6 pt-2">
             {["user", "admin"].map((role) => (

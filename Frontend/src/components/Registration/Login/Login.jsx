@@ -11,6 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, googleLogin, clearAuthError } from "@/redux/store/auth-slice";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode"; 
+import { toast } from "sonner";
 
 const initialState = {
   email: "",
@@ -19,6 +24,10 @@ const initialState = {
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+    const [loginInfo, setLoginInfo] = useState(initialState);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
   const [loginInfo, setLoginInfo] = useState(initialState);
 
   const dispatch = useDispatch();
@@ -27,12 +36,31 @@ const LoginPage = () => {
 
   const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector((state) => state.auth);
 
+    const showToast = (title, description, variant = "default") => {
+  toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
+    description: title,
+  });
+};
+
+    const { isLoading: authIsLoading, error: authError, isAuthenticated:isAuthenticated,user:user } = useSelector((state) => state.auth);
+    const auth=useSelector((state) => state.auth);
+    
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setLoginInfo((prev) => ({ ...prev, [name]: value }));
+    };
   const showToast = (title, description, variant = "default") => {
     toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
       description: title,
     });
   };
 
+    // useEffect(() => {
+    //     if (authError) {
+    //         showToast("Login Failed", authError, "destructive");
+    //         dispatch(clearAuthError());
+    //     }
+    // }, [authError, dispatch]);
   useEffect(() => {
     if (authError) {
       showToast("Login Failed", authError, "destructive");
@@ -53,6 +81,30 @@ const LoginPage = () => {
     setLoginInfo((prev) => ({ ...prev, [name]: value }));
   };
 
+    const onSubmit = (event) => {
+        event.preventDefault();
+        try{
+          if (!loginInfo.email || !loginInfo.password) {
+            showToast("Validation Error", "Please enter both email and password.", "destructive");
+            return;
+        }
+        dispatch(loginUser(loginInfo)).then((data)=>{
+            if (data?.payload?.success) {
+                const role = data?.payload?.data?.role; // adjust according to actual payload structure
+                const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+                showToast("Login Success", "Redirecting...", "success");
+                navigate(redirectPath);
+            } else {
+                showToast("Login Error", data?.payload?.message || "Could not process login.", "destructive");
+            }
+        });
+        }
+        catch(error){
+      console.log(error);
+      showToast("Login Error", error.message || "Could not process login.", "destructive");
+    };
+        
+}
   const onSubmit = (event) => {
     event.preventDefault();
     if (!loginInfo.email || !loginInfo.password) {
@@ -64,6 +116,25 @@ const LoginPage = () => {
 
   const handleGoogleLogin = async (googleUser) => {
     try {
+        const decoded = jwtDecode(googleUser.credential); 
+        dispatch(googleLogin({ email: decoded.email })).then((data) => {  
+    
+          if (data?.payload?.success) {
+            
+            const role = data?.payload?.data?.role; // adjust according to actual payload structure
+            const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+
+            showToast("Google Login success", "Successful login", "success");
+            navigate(redirectPath);
+}
+else {  
+            showToast("Google Login Error", data?.payload?.message || "Could not process Google login.", "destructive");
+          }
+        });
+
+      }
+    catch(error){
+      console.log(error);
       const decoded = jwtDecode(googleUser.credential);
       dispatch(googleLogin({ email: decoded.email })).then((data) => {
         if (data?.payload?.success) {
@@ -104,7 +175,7 @@ const LoginPage = () => {
             </svg>
           </div>
           <h1 className="text-2xl font-semibold text-green-700">
-            Welcome to <span className="text-blue-800 font-bold">RecycleConnect</span>
+            Welcome to <span className="text-blue-800 font-bold">EcoCycleHub</span>
           </h1>
           <p className="text-gray-600 text-sm">Sign in to continue</p>
         </div>
@@ -158,6 +229,17 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
+          </div>
+
+         <Button type="submit" className="w-full bg-black text-white" disabled={authIsLoading}>
+             {authIsLoading ? "Logging in..." : "Login"}
+           </Button>
+         </form>
+         <div className="relative flex items-center justify-center">
+           <Separator className="absolute w-full" />
+           <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
+         </div>
+
           </div>
 
           {/* Submit Button */}

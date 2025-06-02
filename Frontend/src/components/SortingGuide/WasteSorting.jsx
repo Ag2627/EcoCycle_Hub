@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ArrowRight, Upload, Check, Camera, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -10,7 +10,11 @@ const WasteSorting = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState(null);
-  
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
   
   // Handle image upload
   const handleImageUpload = async (event) => {
@@ -98,13 +102,49 @@ const WasteSorting = () => {
     });
   };
   // Handle camera capture
-  const handleCameraCapture = () => {
-    toast({
-      title: "Camera Access",
-      description: "Opening camera...",
-    });
-    // Camera functionality would be implemented here
-  };
+  const handleCameraCapture = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    setCameraStream(stream);
+    setIsCameraOpen(true);
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  } catch (err) {
+    toast.error("Unable to access camera.");
+    console.error("Camera error:", err);
+  }
+};
+const capturePhoto = () => {
+  if (!videoRef.current || !canvasRef.current) return;
+
+  const video = videoRef.current;
+  const canvas = canvasRef.current;
+  const context = canvas.getContext("2d");
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  canvas.toBlob(async (blob) => {
+    if (blob) {
+      const file = new File([blob], "captured_image.jpg", { type: "image/jpeg" });
+      await handleImageUpload({ target: { files: [file] } });
+    }
+  }, "image/jpeg");
+
+  // Stop camera after capturing
+  stopCamera();
+};
+
+const stopCamera = () => {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    setCameraStream(null);
+  }
+  setIsCameraOpen(false);
+};
+
 
   // Reset the state
   const handleReset = () => {
@@ -245,6 +285,8 @@ const WasteSorting = () => {
                     <div className="flex justify-end">
                       <Button onClick={handleReset} variant="outline" className="mr-2">
                         Try Another Image
+                        
+
                       </Button>
                     </div>
                   </div>

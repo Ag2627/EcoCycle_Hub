@@ -10,28 +10,34 @@ import SignupPage from './components/Registration/Signup/Signup';
 import GetStarted from './components/Registration/GetStarted';
 import ReportPage from './components/report/page';
 import WasteSorting from './components/SortingGuide/WasteSorting';
-//import RecyclingMap from './components/RecyclingCenters/RecyclingMap';
-
 import MyReports from "./components/report/MyReports";
 import NotFoundPage from "./components/common/NotFoundPage";
  import { Toaster } from 'sonner'; 
+import AdminLayout from "./components/Admin/AdminLayout";
+import UnauthPage from "./components/common/Unauthpage";
 
 // Protected Route: Only accessible if authenticated
-const ProtectedRoute = () => {
-    const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
-    const location = useLocation();
+const AdminRoute = () => {
+  const { isAuthenticated, isLoading, user } = useSelector(state => state.auth);
+  const location = useLocation();
 
-    if (isLoading) {
-        // return <GlobalLoader />; // Or any loading indicator
-        return <div>Loading session...</div>;
-    }
+  if (isLoading) return <div>Loading session...</div>;
+  if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  if (user?.role !== "admin") return <Navigate to="/unauth-page" replace />;
 
-    if (!isAuthenticated) {
-        return <Navigate to="/auth/login" state={{ from: location }} replace />;
-    }
-    return <Outlet />; // Renders the child route element
+  return <Outlet />;
 };
 
+const UserRoute = () => {
+  const { isAuthenticated, isLoading, user } = useSelector(state => state.auth);
+  const location = useLocation();
+
+  if (isLoading) return <div>Loading session...</div>;
+  if (!isAuthenticated) return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  if (user?.role !== "user") return <Navigate to="/unauth-page" replace />;
+
+  return <Outlet />;
+};
 // Public Only Route: Only accessible if NOT authenticated (e.g., Login, Signup)
 const PublicOnlyRoute = () => {
     const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -56,25 +62,28 @@ const router = createBrowserRouter([
             { path: '/auth/signup', element: <SignupPage /> },
         ]
     },
-    {
-        element: <ProtectedRoute />,
-        children: [
-            { path: 'user/dashboard', element: <Home /> },
-            { path: 'user/report', element: <ReportPage /> },
-            {path:'user/my-reports',element:<MyReports/>},
-            { path: 'user/wastesorting', element: <WasteSorting /> },
-            { path: 'user/rewards', element: <RewardsPage /> }
-            // You might want a UserLayout component here to wrap these user routes
-            // { path: 'user', element: <UserLayout />, children: [ ... ]}
-        ]
-    },
-    { path: '*', element: <NotFoundPage /> } // Good to have a 404 page
+     {
+    element: <UserRoute />, // only logged-in users with role "user"
+    children: [
+      { path: 'user/dashboard', element: <Home /> },
+      { path: 'user/report', element: <ReportPage /> },
+      { path: 'user/my-reports', element: <MyReports /> },
+      { path: 'user/wastesorting', element: <WasteSorting /> },
+      { path: 'user/rewards', element: <RewardsPage /> },
+    ]
+  },
+  {
+    element: <AdminRoute />, // only admins
+    children: [
+      { path: 'admin/dashboard', element: <AdminLayout /> }
+    ]
+  },
+  {path: '/unauth-page', element: <UnauthPage />},
+  { path: '*', element: <NotFoundPage /> }// Good to have a 404 page
 ]);
 
 function App() {
     const dispatch = useDispatch();
-    // const { isLoading: initialAuthCheckLoading } = useSelector(state => state.auth);
-
     useEffect(() => {
         dispatch(checkAuth());
     }, [dispatch]);

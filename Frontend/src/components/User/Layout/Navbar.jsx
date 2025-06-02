@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, Leaf, LogIn } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, Leaf, LogOut } from "lucide-react";
 import clsx from "clsx";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "@/redux/store/auth-slice"; // Update path if needed
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,20 +20,25 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleLogout = async () => {
+    dispatch(logoutUser());
+    navigate("/");
+  };
+
+  const url = "http://localhost:5173";
   const navLinks = [
-    { name: "Report Waste", path: "/waste-report" },
-    { name: "Find Centers", path: "/recycling-centers" },
-    { name: "Waste Guide", path: "/waste-sorting" },
-    { name: "Rewards", path: "/rewards" },
+    { name: "Report Waste", path: `${url}/user/report` },
+    { name: "My Reports", path: `${url}/user/my-reports` },
+    { name: "Find Centers", path: `${url}/user/recycling-centers` },
+    { name: "Waste Guide", path: `${url}/user/wastesorting` },
+    { name: "Rewards", path: `${url}/user/rewards` },
   ];
 
   return (
     <header
       className={clsx(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-white/80 backdrop-blur shadow-md py-3"
-          : "bg-transparent py-5"
+        isScrolled ? "bg-white/80 backdrop-blur shadow-md py-3" : "bg-transparent py-5"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
@@ -48,13 +58,13 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          <Link
-            to="/"
-            className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded flex items-center gap-2 transition-colors"
+          <button
+            onClick={handleLogout}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2 transition-colors"
           >
-            <LogIn size={18} />
+            <LogOut size={18} />
             Logout
-          </Link>
+          </button>
         </nav>
 
         {/* Mobile Menu Button */}
@@ -85,14 +95,16 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          <Link
-            to="/auth"
-            onClick={() => setIsMenuOpen(false)}
-            className="bg-green-700 hover:bg-green-800 text-white py-3 rounded flex items-center justify-center gap-2 transition-colors"
+          <button
+            onClick={() => {
+              setIsMenuOpen(false);
+              handleLogout();
+            }}
+            className="bg-green-600 hover:bg-green-700 text-white py-3 rounded flex items-center justify-center gap-2 transition-colors"
           >
-            <LogIn size={20} />
-            Sign In
-          </Link>
+            <LogOut size={20} />
+            Logout
+          </button>
         </div>
       </div>
     </header>
