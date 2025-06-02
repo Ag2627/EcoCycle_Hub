@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, googleLogin, clearAuthError } from "@/redux/store/auth-slice";
 import { GoogleLogin } from "@react-oauth/google";
@@ -17,12 +15,9 @@ const initialState = {
   password: "",
 };
 
-
-
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
     const [loginInfo, setLoginInfo] = useState(initialState);
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -33,36 +28,45 @@ const LoginPage = () => {
   });
 };
 
-
-    const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector((state) => state.auth);
-
+    const { isLoading: authIsLoading, error: authError, isAuthenticated:isAuthenticated,user:user } = useSelector((state) => state.auth);
+    const auth=useSelector((state) => state.auth);
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
         setLoginInfo((prev) => ({ ...prev, [name]: value }));
     };
 
-    useEffect(() => {
-        if (authError) {
-            showToast("Login Failed", authError, "destructive");
-            dispatch(clearAuthError());
-        }
-    }, [authError, dispatch]);
+    // useEffect(() => {
+    //     if (authError) {
+    //         showToast("Login Failed", authError, "destructive");
+    //         dispatch(clearAuthError());
+    //     }
+    // }, [authError, dispatch]);
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            const from = location.state?.from?.pathname || "/user/dashboard";
-            showToast("Login Successful", "Redirecting...");
-            navigate(from, { replace: true });
-        }
-    }, [isAuthenticated, navigate, location.state]);
 
     const onSubmit = (event) => {
         event.preventDefault();
-        if (!loginInfo.email || !loginInfo.password) {
+        try{
+          if (!loginInfo.email || !loginInfo.password) {
             showToast("Validation Error", "Please enter both email and password.", "destructive");
             return;
         }
-        dispatch(loginUser(loginInfo));
+        dispatch(loginUser(loginInfo)).then((data)=>{
+            if (data?.payload?.success) {
+                const role = data?.payload?.data?.role; // adjust according to actual payload structure
+                const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+                showToast("Login Success", "Redirecting...", "success");
+                navigate(redirectPath);
+            } else {
+                showToast("Login Error", data?.payload?.message || "Could not process login.", "destructive");
+            }
+        });
+        }
+        catch(error){
+      console.log(error);
+      showToast("Login Error", error.message || "Could not process login.", "destructive");
+    };
+        
 }
 
   const handleGoogleLogin = async (googleUser) => {
@@ -71,10 +75,14 @@ const LoginPage = () => {
         dispatch(googleLogin({ email: decoded.email })).then((data) => {  
     
           if (data?.payload?.success) {
-            showToast("Google Login success", "succesful login", "success");
+            
+            const role = data?.payload?.data?.role; // adjust according to actual payload structure
+            const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
 
-            navigate("/user/dashboard");
-          } else {  
+            showToast("Google Login success", "Successful login", "success");
+            navigate(redirectPath);
+}
+else {  
             showToast("Google Login Error", data?.payload?.message || "Could not process Google login.", "destructive");
           }
         });
@@ -112,7 +120,7 @@ const LoginPage = () => {
             </svg>
           </div>
           <h1 className="text-2xl font-semibold text-green-700">
-            Welcome to <span className="text-blue-800 font-bold">RecycleConnect</span>
+            Welcome to <span className="text-blue-800 font-bold">EcoCycleHub</span>
           </h1>
           <p className="text-gray-600 text-sm">Sign in to continue</p>
         </div>
@@ -165,19 +173,6 @@ const LoginPage = () => {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-  
-          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Sign In"}
-          </Button>
-        </form>
-  
-        <div className="relative flex items-center justify-center my-4">
-          <Separator className="absolute w-full" />
-          <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
-        </div>
-  
-=======
 
          <Button type="submit" className="w-full bg-black text-white" disabled={authIsLoading}>
              {authIsLoading ? "Logging in..." : "Login"}
@@ -188,7 +183,6 @@ const LoginPage = () => {
            <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
          </div>
 
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
         <div className="flex justify-center">
           <GoogleLogin onSuccess={handleGoogleLogin} onError={handleGoogleFailure} />
         </div>
