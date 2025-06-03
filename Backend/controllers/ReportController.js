@@ -7,7 +7,7 @@ dotenv.config();
 // Controller to create a new report
 export const createReport = async (req, res) => {
     try {
-        const { location, type, amount, address, imageUrl, userId } = req.body;
+        const { location, type, latitude,longitude,currentLocation,amount, address, imageUrl, userId } = req.body;
 
         if (!location || !type || !amount || !imageUrl || !userId) {
             return res.status(400).json({ message: "All fields are required" });
@@ -18,6 +18,9 @@ export const createReport = async (req, res) => {
             location,
             type,
             address,
+            latitude,
+            longitude,
+            currentLocation,
             amount,
             imageUrl,
             createdAt: new Date(),

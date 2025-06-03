@@ -46,7 +46,7 @@ export const loginUser = createAsyncThunk("auth/login", async (formData, { rejec
     localStorage.setItem("name", response.data.data.name);
     localStorage.setItem("role", response.data.data.role);
     localStorage.setItem("id", response.data.data._id);
-    console.log("Login response:", response.data);
+
     return response.data;
   } catch (error) {
     return rejectWithValue(error.response?.data || { message: "Login failed." });
@@ -83,7 +83,7 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async (_, { getState
     return rejectWithValue({ success: false, message: "No token found." });
   }
   try {
-    const response = await apiClient.get("/auth/check-auth");
+    const response = await apiClient.get("/auth/check-auth");    
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
     }
@@ -113,9 +113,6 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.isAuthenticated = action.payload.success;
      state.user = action.payload?.data ?? null;
-
-
-      console.log("Auth success payload:", action.payload.data);
       state.token = action.payload.token || state.token;
       state.error = action.payload.success ? null : (action.payload.message || "Operation failed.");
     };
@@ -137,7 +134,7 @@ const authSlice = createSlice({
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = action.payload.success;
-        state.user = action.payload.data || null;
+        state.user = action.payload.data || action.payload.user|| null;
         state.token = action.payload.token || null;
         state.error = action.payload.success ? null : action.payload.message || "Authentication check failed.";
       })

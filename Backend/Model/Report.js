@@ -11,6 +11,17 @@ const ReportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  currentLocation: {
+    type: String,
+  },
+  latitude: {
+    type: Number,
+    required: true,
+  },
+  longitude: {
+    type: Number,
+    required: true,
+  },
   address:{
     type: String,
   },

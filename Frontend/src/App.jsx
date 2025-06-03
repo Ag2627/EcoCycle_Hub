@@ -38,20 +38,14 @@ const UserRoute = () => {
 
   return <Outlet />;
 };
-// Public Only Route: Only accessible if NOT authenticated (e.g., Login, Signup)
+
 const PublicOnlyRoute = () => {
-    const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
-
-    if (isLoading) {
-        // return <GlobalLoader />;
-        return <div>Loading session...</div>;
-    }
-
-    if (isAuthenticated) {
-        return <Navigate to="/user/dashboard" replace />;
-    }
-    return <Outlet />;
+  const { isAuthenticated, isLoading } = useSelector(state => state.auth);
+  if (isLoading) return <div>Loading session...</div>;
+  if (isAuthenticated) return <Navigate to="/user/dashboard" replace />;
+  return <Outlet />;
 };
+
 
 const router = createBrowserRouter([
     { path: '/', element: <GetStarted /> },
@@ -84,10 +78,12 @@ const router = createBrowserRouter([
 
 function App() {
     const dispatch = useDispatch();
+    const { isLoading } = useSelector(state => state.auth);
+
     useEffect(() => {
         dispatch(checkAuth());
     }, [dispatch]);
-
+    if (isLoading) return <div>Checking session, please wait...</div>;
 
     return (
         <>

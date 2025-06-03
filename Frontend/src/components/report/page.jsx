@@ -4,7 +4,7 @@ import { useState, useEffect,useRef } from "react";
 import { CheckCircle, Upload, Loader, MapPin } from "lucide-react";
 import { useSelector,useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import mapboxgl from "mapbox-gl";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
@@ -16,8 +16,6 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 export default function ReportPage() {
   const user = useSelector((state) => state.auth.user);
-  console.log(user);
-  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
@@ -32,11 +30,24 @@ export default function ReportPage() {
     location: "",
     type: "",
     amount: "",
-    address:""
+    address:"",
+    latitude: null,
+    longitude: null,
+    currentLocation: "",
   });
   const mapRef = useRef(null);
   const markerRef = useRef(null);
- 
+
+  const showToast = (title, description, variant = "default") => {
+  toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
+    description: title,
+  });
+};
+
+  useEffect(() => {
+  getUserLocation();
+}, []);
+
 
   useEffect(() => {
     if (!mapboxToken) return;
@@ -90,6 +101,47 @@ export default function ReportPage() {
   }, []);
   
   
+  const getUserLocation = () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      async function (position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setNewReport((prevReport) => ({
+          ...prevReport,
+          latitude: lat,
+          longitude: lng,
+        }));
+
+        // Reverse geocode using Mapbox
+        try {
+          const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}`
+          );
+          const data = await response.json();
+          const place = data.features?.[0]?.place_name || "Unknown location";
+
+          setNewReport((prevReport) => ({
+            ...prevReport,
+            currentLocation: place, // 🟢 Set the location field
+          }));
+          showToast("Location Fetched", `Your current location is: ${place}`, "success");
+        } catch (err) {
+          console.error("Error fetching address:", err);
+          showToast("Error Fetching Address", "Could not fetch your address. Please try again later.", "destructive");
+        }
+      },
+      function (error) {
+        console.error("Error getting user location:", error);
+      }
+    );
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+    showToast("Geolocation Error", "Your browser does not support geolocation.", "destructive");
+  }
+};
+
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -170,11 +222,14 @@ Respond in JSON format like this:
         amount: parsed.quantity || "Unknown",
       }));
       setVerificationStatus("success");
-      toast.success("Waste verified successfully");
+      showToast("Waste Verified", "Waste type and amount verified successfully!", "success");
     } catch (err) {
       console.error("Gemini verification error:", err);
       setVerificationStatus("failure");
-      toast.error("Failed to verify waste");
+      showToast("Verification Error", "Failed to verify waste. Please try again.", "destructive");
+      setWasteType("Verification failed");
+      setAmount("Verification failed");
+      setVerificationResult(null);
     }
   };
 
@@ -182,13 +237,12 @@ Respond in JSON format like this:
     e.preventDefault();
 
     if (verificationStatus !== "success" || !user) {
-      toast.error("Please verify the waste before submitting or log in.");
+      showToast("Waste Verification Required", "Please verify the waste before submitting.", "destructive");
       console.log("Please verify the waste before submitting or log in.");
       return;
     }
     if (!file || !newReport.location || !verificationResult) {
-  toast.error("Make sure image, location, and verification are all provided");
-  console.log("Make sure image, location, and verification are all provided");
+  showToast("Missing Information", "Please provide an image, location, and verification result.", "destructive");
   
   return;
 }
@@ -203,11 +257,14 @@ Respond in JSON format like this:
         amount: amount,
         imageUrl: preview||undefined,
         verificationResult: verificationResult|| undefined,
+        latitude: newReport.latitude,
+        longitude: newReport.longitude,
+        currentLocation: newReport.currentLocation || "",
       }
       
       dispatch(submitReport(formData));
 
-      toast.success("Report submitted successfully!");
+      showToast("Report Submitted", "Your waste report has been submitted successfully!", "success");
       setLocation("");
       setWasteType("Verified waste type");
       setAmount("Verified amount");
@@ -220,163 +277,175 @@ Respond in JSON format like this:
       navigate("/user/my-reports")
   };
 return (
-  <div className="p-8 max-w-4xl mx-auto">
-    <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report Waste</h1>
+  <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-white py-16 px-4">
+  <div className="mx-auto w-full max-w-4xl rounded-3xl bg-white/80 backdrop-blur-lg shadow-2xl ring-1 ring-black/5 p-10">
+    <h1 className="mb-8 text-center text-4xl font-extrabold tracking-tight text-emerald-700">
+      Report Waste
+    </h1>
 
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-8 rounded-2xl shadow-lg space-y-8"
+      className="space-y-10"
     >
       {/* Upload Image */}
-      <div>
-        <label className="block text-lg font-medium text-gray-700 mb-2">
+      <section>
+        <label className="block mb-3 text-lg font-medium text-gray-700">
           Upload Waste Image
         </label>
-        <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-green-500">
-          <div className="text-center">
-            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-            <label className="cursor-pointer text-green-600 font-medium">
-              Upload a file
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="sr-only"
-                accept="image/*"
-              />
-            </label>
-            <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
-          </div>
-        </div>
-      </div>
+
+        <label
+          htmlFor="waste-file"
+          className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-gray-300 p-8 transition hover:border-emerald-400 hover:bg-emerald-50/50"
+        >
+          <Upload className="h-12 w-12 text-gray-400 group-hover:text-emerald-500" />
+          <span className="text-base font-semibold text-emerald-600 transition group-hover:underline">
+            Click or drag a file here
+          </span>
+          <span className="text-xs text-gray-500">PNG / JPG • Max 10 MB</span>
+          <input
+            id="waste-file"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="sr-only"
+          />
+        </label>
+      </section>
 
       {/* Image Preview */}
       {preview && (
-        <div>
+        <section className="overflow-hidden rounded-2xl border border-gray-200 shadow inner">
           <img
             src={preview}
             alt="Preview"
-            className="w-full max-h-96 object-contain rounded-xl"
+            className="h-96 w-full object-contain bg-gray-50"
           />
-        </div>
+        </section>
       )}
-      
+
       {/* Verify Waste Button */}
       <Button
         type="button"
         onClick={verifyWaste}
         disabled={!file || verificationStatus === "verifying"}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-xl"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-lg font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {verificationStatus === "verifying" ? (
-          <>
-            <Loader className="animate-spin h-5 w-5 mr-3" />
-            Verifying...
-          </>
-        ) : (
-          "Verify Waste"
+        {verificationStatus === "verifying" && (
+          <Loader className="h-5 w-5 animate-spin" />
         )}
+        {verificationStatus === "verifying" ? "Verifying…" : "Verify Waste"}
       </Button>
 
       {/* Verification Result */}
       {verificationStatus === "success" && verificationResult && (
-        <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-xl">
-          <h3 className="text-green-800 font-medium mb-1">Verification Result:</h3>
-          <p className="text-green-700 text-sm">
+        <section className="rounded-xl border-l-4 border-emerald-500 bg-emerald-50 p-4">
+          <h3 className="mb-1 font-semibold text-emerald-800">
+            Verification Result
+          </h3>
+          <p className="text-sm text-emerald-700">
             Waste Type: {verificationResult.wasteType}
             <br />
-            Quantity: {verificationResult.quantity}
+            Quantity:&nbsp;{verificationResult.quantity}
             <br />
-            Confidence: {(verificationResult.confidence * 100).toFixed(2)}%
+            Confidence:&nbsp;
+            {(verificationResult.confidence * 100).toFixed(2)}%
           </p>
-        </div>
+        </section>
       )}
 
-      {/* Input Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="text-sm font-medium text-gray-700 mb-1 block">
-            Address (optional)
+      {/* Inputs */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
+            Address Notes&nbsp;(optional)
           </label>
           <input
             type="text"
             name="address"
-            value={newReport.address||""}
+            value={newReport.address}
             onChange={(e) =>
               setNewReport((prev) => ({ ...prev, address: e.target.value }))
             }
-            placeholder="Enter address"
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl"
+            placeholder="Flat no / landmark / etc."
+            className="rounded-xl border border-gray-300 px-4 py-2 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700 mb-1 block">
-            Selected Location
-          </label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Location</label>
           <input
             type="text"
             readOnly
             value={newReport.location}
-            className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
+            className="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-600"
           />
         </div>
 
-         <div>
-           <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">Waste Type</label>
-           <input
-              type="text"
-              id="type"
-              name="type"
-              value={newReport.type}
-              onChange={handleInputChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-gray-100"
-              placeholder="Verified waste type"
-              readOnly
-            />
-          </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700 mb-1 block">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
+            Current Location
+          </label>
+          <input
+            type="text"
+            id="location"
+            placeholder="Fetching your location…"
+            value={newReport.currentLocation || ""}
+            onChange={(e) =>
+              setNewReport({ ...newReport, currentLocation: e.target.value })
+            }
+            className="rounded-xl border border-gray-300 px-4 py-2 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="type" className="text-sm font-medium text-gray-700">
+            Waste Type
+          </label>
+          <input
+            type="text"
+            id="type"
+            name="type"
+            value={newReport.type}
+            readOnly
+            className="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-600"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
             Estimated Amount
           </label>
           <input
             type="text"
             name="amount"
             value={newReport.amount}
-            onChange={handleInputChange}
             readOnly
-            className="w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-xl"
+            className="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-600"
           />
         </div>
 
-        <div className="md:col-span-2">
-          <label className="text-sm font-medium text-gray-700 mb-1 block">
-            Map
-          </label>
+        {/* Map */}
+        <div className="md:col-span-2 flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Map</label>
           <div
             id="map-container"
-            className="w-full h-64 rounded-xl border border-gray-300 shadow"
-          ></div>
+            className="h-72 w-full rounded-2xl border border-gray-300 shadow-sm"
+          />
         </div>
       </div>
 
-      {/* Submit Button */}
+      {/* Submit */}
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg rounded-xl"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-lg font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? (
-          <>
-            <Loader className="animate-spin h-5 w-5 mr-2" />
-            Submitting...
-          </>
-        ) : (
-          "Submit Report"
-        )}
+        {isSubmitting && <Loader className="h-5 w-5 animate-spin" />}
+        {isSubmitting ? "Submitting…" : "Submit Report"}
       </Button>
     </form>
   </div>
+</div>
 );
 
 }
