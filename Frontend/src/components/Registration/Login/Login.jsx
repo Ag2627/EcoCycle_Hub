@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser, googleLogin, clearAuthError } from "@/redux/store/auth-slice";
+import { loginUser, googleLogin, clearAuthError } from "@/redux/store/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode"; 
 import { toast } from "sonner";
@@ -54,7 +54,7 @@ const LoginPage = () => {
         dispatch(loginUser(loginInfo)).then((data)=>{
             if (data?.payload?.success) {
                 const role = data?.payload?.data?.role; // adjust according to actual payload structure
-                const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+                const redirectPath = role === "admin" ? "/admin" : "/user/dashboard";
                 showToast("Login Success", "Redirecting...", "success");
                 navigate(redirectPath);
             } else {
@@ -77,7 +77,7 @@ const LoginPage = () => {
           if (data?.payload?.success) {
             
             const role = data?.payload?.data?.role; // adjust according to actual payload structure
-            const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+            const redirectPath = role === "admin" ? "/admin" : "/user/dashboard";
 
             showToast("Google Login success", "Successful login", "success");
             navigate(redirectPath);

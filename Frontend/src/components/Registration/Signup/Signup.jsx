@@ -4,7 +4,7 @@ import { Eye, EyeOff, Mail, User, Lock, Phone, MapPin } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 
-import { registerUser, clearAuthError } from "@/redux/store/auth-slice";
+import { registerUser, clearAuthError } from "@/redux/store/authSlice";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -68,7 +68,7 @@ const SignupPage = () => {
       setIsLoading(false);
         if (data?.payload?.success) {
                 const role = data?.payload?.data?.role; // adjust according to actual payload structure
-                const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+                const redirectPath = role === "admin" ? "/admin" : "/user/dashboard";
                 showToast("Signup Success", "Redirecting...", "success");
                 navigate(redirectPath);
             } else {

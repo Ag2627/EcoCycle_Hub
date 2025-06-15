@@ -2,6 +2,7 @@
   "dependencies": {
     "@maptiler/sdk": "^3.0.2",
     "@react-google-maps/api": "^2.20.6",
-    "google-auth-library": "^9.15.1"
+    "google-auth-library": "^9.15.1",
+    "recharts": "^2.15.3"
   }
 }

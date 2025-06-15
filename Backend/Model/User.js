@@ -25,6 +25,19 @@ const userSchema=new mongoose.Schema({
     address:{
         type:String,
     },
+    status: {
+    type: String,
+    enum: ["active", "flagged", "removed"],
+    default: "active",
+    },
+    points: {
+    type: Number,
+    default: 0,
+  },
+  reportsCount: {
+    type: Number,
+    default: 0,
+  },
     role:{
         type:String,
         enum:['user','admin'],

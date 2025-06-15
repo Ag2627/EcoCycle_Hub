@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuth } from "@/redux/store/auth-slice"; 
+import { checkAuth } from "@/redux/store/authSlice"; 
 
 import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Home from './components/User/Home/Home';
@@ -15,6 +15,9 @@ import NotFoundPage from "./components/common/NotFoundPage";
  import { Toaster } from 'sonner'; 
 import AdminLayout from "./components/Admin/AdminLayout";
 import UnauthPage from "./components/common/Unauthpage";
+import Reports from "./components/Admin/Reports";
+import Users from "./components/Admin/Users";
+import AdminDashboard from "./components/Admin/AdminDashboard";
 
 // Protected Route: Only accessible if authenticated
 const AdminRoute = () => {
@@ -69,7 +72,15 @@ const router = createBrowserRouter([
   {
     element: <AdminRoute />, // only admins
     children: [
-      { path: 'admin/dashboard', element: <AdminLayout /> }
+      {
+        path: '/admin',
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <AdminDashboard/> }, // replace with your dashboard
+          { path: 'users', element: <Users /> },
+          { path: 'reports', element: <Reports /> },
+        ]
+      }
     ]
   },
   {path: '/unauth-page', element: <UnauthPage />},

@@ -1,15 +1,12 @@
 import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import Connection from "./Database/db.js"
 import multer from "multer";
 import Authrouter from "./Routes/AuthRouter.js";
-
 import Reportrouter from "./Routes/ReportRouter.js";
-
 import rewardRouter from "./Routes/RewardRoutes.js";
-import axios from "axios";
+import UserRouter from "./Routes/UserRouter.js";
 
 dotenv.config();
 const app = express();
@@ -38,7 +35,7 @@ app.use('/auth',Authrouter);
 app.get("/", (req, res) => {
   res.send("Waste Management API is running...");
 });
-
+app.use("/users",UserRouter);
 app.use("/reports", Reportrouter);
 
 
