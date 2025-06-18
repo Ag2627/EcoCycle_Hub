@@ -10,21 +10,9 @@ import SignupPage from './components/Registration/Signup/Signup';
 import GetStarted from './components/Registration/GetStarted';
 import ReportPage from './components/report/page';
 import WasteSorting from './components/SortingGuide/WasteSorting';
-<<<<<<< HEAD
-//import RecyclingMap from './components/RecyclingCenters/RecyclingMap';
-const router=createBrowserRouter(
-  [
-    {path:'/',element:<GetStarted/>},
-    {path:'/auth/login',element:<LoginPage/>},
-    {path:'/auth/signup',element:<SignupPage/>},
 
-    {path:'user/dashboard',element:<Home/>},
-    {path:'user/report',element:<ReportPage/>},
-    {path:'user/wastesorting',element:<WasteSorting/>},  
-    
-    {path:'user/rewards', element:<RewardsPage/>},
-    //{path:'user/recyclingcenters',element:<RecyclingMap/>}
-=======
+import RecyclingMap from './components/RecyclingCenters/RecyclingMap';
+
 import MyReports from "./components/report/MyReports";
 import NotFoundPage from "./components/common/NotFoundPage";
  import { Toaster } from 'sonner'; 
@@ -33,7 +21,6 @@ import NotFoundPage from "./components/common/NotFoundPage";
 const ProtectedRoute = () => {
     const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
     const location = useLocation();
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
 
     if (isLoading) {
         // return <GlobalLoader />; // Or any loading indicator
@@ -77,7 +64,8 @@ const router = createBrowserRouter([
             { path: 'user/report', element: <ReportPage /> },
             {path:'user/my-reports',element:<MyReports/>},
             { path: 'user/wastesorting', element: <WasteSorting /> },
-            { path: 'user/rewards', element: <RewardsPage /> }
+            { path: 'user/rewards', element: <RewardsPage /> },
+            { path: 'user/centres', element: <RecyclingMap /> }
             // You might want a UserLayout component here to wrap these user routes
             // { path: 'user', element: <UserLayout />, children: [ ... ]}
         ]

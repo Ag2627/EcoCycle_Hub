@@ -19,8 +19,6 @@ const SignupPage = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-<<<<<<< HEAD
-=======
   const { isLoading: authIsLoading, error: authError, isAuthenticated } = useSelector(
     (state) => state.auth
   );
@@ -31,7 +29,6 @@ const SignupPage = () => {
   });
 };
 
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
 
   const handleChange = (e) => {
     setSignupInfo({ ...signupInfo, [e.target.name]: e.target.value });
@@ -41,11 +38,6 @@ const SignupPage = () => {
     setSignupInfo({ ...signupInfo, role: e.target.value });
   };
 
-<<<<<<< HEAD
-  const onSubmit = (event) => {
-    event.preventDefault();
-    setIsLoading(true);
-=======
   useEffect(() => {
     if (authError) {
       showToast("Signup Failed", authError, "destructive");
@@ -72,35 +64,20 @@ const SignupPage = () => {
       return;
     }
 
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
     dispatch(registerUser(signupInfo)).then((data) => {
       setIsLoading(false);
       if (data?.payload?.success) {
-<<<<<<< HEAD
-        toast({ title: data?.payload?.message });
         navigate("/user/dashboard");
-      } else {
-        toast({ title: data?.payload?.message, variant: "destructive" });
-=======
-        navigate("/user/dashboard");
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
       }
     });
   };
 
   return (
-<<<<<<< HEAD
-    <div className="flex min-h-screen items-center justify-center bg-[#f6fcf7] p-4">
-      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-xl border">
-        <h1 className="text-3xl font-bold text-center text-green-700">Create Account</h1>
-        <form onSubmit={onSubmit} className="space-y-4 mt-6">
-=======
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md bg-white p-6 shadow-md rounded-lg">
         <h1 className="text-3xl font-bold text-center">Create Account</h1>
 
         <form onSubmit={onSubmit} className="space-y-4 mt-4">
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
           {[
             { label: "Full Name", type: "text", name: "name", icon: <User /> },
             { label: "Email", type: "email", name: "email", icon: <Mail /> },
@@ -121,10 +98,7 @@ const SignupPage = () => {
             </div>
           ))}
 
-<<<<<<< HEAD
-=======
           {/* Password Field */}
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
           <div className="relative">
             <span className="absolute left-3 top-3 text-gray-400">
               <Lock />
@@ -147,32 +121,6 @@ const SignupPage = () => {
             </button>
           </div>
 
-<<<<<<< HEAD
-          <div className="flex space-x-6 pt-2">
-            {["user", "admin"].map((role) => (
-              <label key={role} className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="role"
-                  value={role}
-                  checked={signupInfo.role === role}
-                  onChange={handleRoleChange}
-                  className="accent-green-600"
-                />
-                <span className="ml-2 capitalize text-gray-700">{role}</span>
-              </label>
-            ))}
-          </div>
-
-          <button
-            type="submit"
-            className={`w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded transition-all duration-200 ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isLoading}
-          >
-            {isLoading ? "Creating account..." : "Create Account"}
-=======
           {/* Role Radio */}
           <div className="flex space-x-4">
             <label className="flex items-center">
@@ -204,7 +152,6 @@ const SignupPage = () => {
             disabled={authIsLoading}
           >
             {authIsLoading ? "Creating account..." : "Create Account"}
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
           </button>
         </form>
 

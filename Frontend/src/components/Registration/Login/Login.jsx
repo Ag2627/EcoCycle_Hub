@@ -165,19 +165,6 @@ const LoginPage = () => {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-  
-          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Sign In"}
-          </Button>
-        </form>
-  
-        <div className="relative flex items-center justify-center my-4">
-          <Separator className="absolute w-full" />
-          <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
-        </div>
-  
-=======
 
          <Button type="submit" className="w-full bg-black text-white" disabled={authIsLoading}>
              {authIsLoading ? "Logging in..." : "Login"}
@@ -188,7 +175,6 @@ const LoginPage = () => {
            <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
          </div>
 
->>>>>>> f4a5bde73100369344612b743c9ed4116719244b
         <div className="flex justify-center">
           <GoogleLogin onSuccess={handleGoogleLogin} onError={handleGoogleFailure} />
         </div>
