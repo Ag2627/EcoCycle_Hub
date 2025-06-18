@@ -4,7 +4,7 @@ import { Eye, EyeOff, Mail, User, Lock, Phone, MapPin } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 
-import { registerUser, clearAuthError } from "@/redux/store/auth-slice";
+import { registerUser, clearAuthError } from "@/redux/store/authSlice";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,13 +63,21 @@ const SignupPage = () => {
       showToast("Validation Error", "Password must be at least 6 characters.", "destructive");
       return;
     }
-
+   try{
     dispatch(registerUser(signupInfo)).then((data) => {
       setIsLoading(false);
-      if (data?.payload?.success) {
-        navigate("/user/dashboard");
-      }
-    });
+        if (data?.payload?.success) {
+                const role = data?.payload?.data?.role; // adjust according to actual payload structure
+                const redirectPath = role === "admin" ? "/admin" : "/user/dashboard";
+                showToast("Signup Success", "Redirecting...", "success");
+                navigate(redirectPath);
+            } else {
+                showToast("Signup Error", data?.payload?.message || "Could not process Signup.", "destructive");
+            }
+      });
+   }catch(error){
+      showToast("Signup Error", error.message || "Could not process signup.", "destructive");
+    };
   };
 
   return (

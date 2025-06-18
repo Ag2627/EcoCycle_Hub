@@ -7,7 +7,7 @@ dotenv.config();
 // Controller to create a new report
 export const createReport = async (req, res) => {
     try {
-        const { location, type, amount, address, imageUrl, userId } = req.body;
+        const { location, type, latitude,longitude,currentLocation,amount, address, imageUrl, userId } = req.body;
 
         if (!location || !type || !amount || !imageUrl || !userId) {
             return res.status(400).json({ message: "All fields are required" });
@@ -18,6 +18,9 @@ export const createReport = async (req, res) => {
             location,
             type,
             address,
+            latitude,
+            longitude,
+            currentLocation,
             amount,
             imageUrl,
             createdAt: new Date(),
@@ -36,7 +39,7 @@ export const createReport = async (req, res) => {
 // Controller to get all reports
 export const getAllReports = async (req, res) => {
     try {
-        const reports = await Report.find().sort({ createdAt: -1 });
+        const reports = await Report.find().populate("userId", "name").sort({ createdAt: -1 });
         res.status(200).json(reports);
     } catch (error) {
         console.error("Error fetching reports:", error);
@@ -92,3 +95,25 @@ export const deleteReport = async (req, res) => {
 };
 
 
+// Controller to update report status
+export const updateReportStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const updatedReport = await Report.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedReport) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    res.status(200).json({ message: "Status updated", report: updatedReport });
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

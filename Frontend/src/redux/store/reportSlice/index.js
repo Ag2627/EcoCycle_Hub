@@ -18,17 +18,66 @@ export const submitReport = createAsyncThunk(
     }
   }
 );
-
+export const fetchAllReports = createAsyncThunk(
+  "report/fetchAllReports",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get("http://localhost:5000/reports/all", {
+        withCredentials: true,
+      });
+      console.log("Fetched reports:", response.data);
+      
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+export const updateReportStatus = createAsyncThunk(
+  "report/updateReportStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/reports/status/${id}`,
+        { status },
+        { withCredentials: true }
+      );
+      return response.data.report;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
 const reportSlice = createSlice({
   name: "report",
   initialState: {
     isSubmitting: false,
     error: null,
     successMessage: null,
+    reports:[]
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+    .addCase(fetchAllReports.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(fetchAllReports.fulfilled, (state, action) => {
+      state.loading = false;
+      state.reports = action.payload;
+    })
+    .addCase(fetchAllReports.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload.message;
+    })
+
+    // Update report status
+    .addCase(updateReportStatus.fulfilled, (state, action) => {
+      const index = state.reports.findIndex(r => r._id === action.payload._id);
+      if (index !== -1) {
+        state.reports[index] = action.payload;
+      }
+    })
       .addCase(submitReport.pending, (state) => {
         state.isSubmitting = true;
         state.error = null;

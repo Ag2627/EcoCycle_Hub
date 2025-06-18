@@ -11,6 +11,17 @@ const ReportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  currentLocation: {
+    type: String,
+  },
+  latitude: {
+    type: Number,
+    required: true,
+  },
+  longitude: {
+    type: Number,
+    required: true,
+  },
   address:{
     type: String,
   },
@@ -26,10 +37,10 @@ const ReportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  verificationStatus: {
+  status: {
     type: String,
-    enum: ["idle", "verifying", "success", "failure"],
-    default: "idle",
+    enum: [ "verified", "completed", "pending","failed"],
+    default: "pending",
   },
   verificationResult: {
     wasteType: { type: String },
