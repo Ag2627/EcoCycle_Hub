@@ -39,7 +39,7 @@ const MyReports = () => {
     if (user?._id) {
       fetchReports();
     }
-  }, [user]);
+  }, [user?._id]);
 
   if (loading) {
     return <div className="text-center text-gray-600 mt-10">Loading reports...</div>;

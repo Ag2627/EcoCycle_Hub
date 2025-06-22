@@ -4,11 +4,10 @@ import { Eye, EyeOff, Mail, User, Lock, Phone, MapPin } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 
-import { registerUser, clearAuthError } from "@/redux/store/auth-slice";
+import { registerUser, clearAuthError } from "@/redux/store/authSlice";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [signupInfo, setSignupInfo] = useState({
     name: "",
     email: "",
@@ -25,10 +24,10 @@ const SignupPage = () => {
   );
 
   const showToast = (title, description, variant = "default") => {
-    toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
-      description: title,
-    });
-  };
+  toast[variant === "destructive" ? "error" : variant === "success" ? "success" : "message"](description, {
+    description: title,
+  });
+};
 
 
   const handleChange = (e) => {
@@ -53,36 +52,23 @@ const SignupPage = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleChange = (e) => {
-    setSignupInfo({ ...signupInfo, [e.target.name]: e.target.value });
-  };
-
-  const handleRoleChange = (e) => {
-    setSignupInfo({ ...signupInfo, role: e.target.value });
-  };
-
   const onSubmit = (event) => {
     event.preventDefault();
-    setIsLoading(true);
-
     if (!signupInfo.name || !signupInfo.email || !signupInfo.password) {
       showToast("Validation Error", "Name, Email, and Password are required.", "destructive");
-      setIsLoading(false);
       return;
     }
 
     if (signupInfo.password.length < 6) {
       showToast("Validation Error", "Password must be at least 6 characters.", "destructive");
-      setIsLoading(false);
       return;
     }
    try{
-
     dispatch(registerUser(signupInfo)).then((data) => {
       setIsLoading(false);
         if (data?.payload?.success) {
                 const role = data?.payload?.data?.role; // adjust according to actual payload structure
-                const redirectPath = role === "admin" ? "/admin/dashboard" : "/user/dashboard";
+                const redirectPath = role === "admin" ? "/admin" : "/user/dashboard";
                 showToast("Signup Success", "Redirecting...", "success");
                 navigate(redirectPath);
             } else {
@@ -92,13 +78,6 @@ const SignupPage = () => {
    }catch(error){
       showToast("Signup Error", error.message || "Could not process signup.", "destructive");
     };
-      if (data?.payload?.success) {
-        toast.success(data.payload.message);
-        navigate("/user/dashboard");
-      } else {
-        toast.error(data?.payload?.message || "Signup failed.");
-      }
-    });
   };
 
   return (
@@ -107,11 +86,6 @@ const SignupPage = () => {
         <h1 className="text-3xl font-bold text-center">Create Account</h1>
 
         <form onSubmit={onSubmit} className="space-y-4 mt-4">
-    <div className="flex min-h-screen items-center justify-center bg-[#f6fcf7] p-4">
-      <div className="w-full max-w-md bg-white p-6 shadow-md rounded-xl border">
-        <h1 className="text-3xl font-bold text-center text-green-700">Create Account</h1>
-
-        <form onSubmit={onSubmit} className="space-y-4 mt-6">
           {[
             { label: "Full Name", type: "text", name: "name", icon: <User /> },
             { label: "Email", type: "email", name: "email", icon: <Mail /> },
@@ -186,32 +160,6 @@ const SignupPage = () => {
             disabled={authIsLoading}
           >
             {authIsLoading ? "Creating account..." : "Create Account"}
-          {/* Role Radio */}
-          <div className="flex space-x-6 pt-2">
-            {["user", "admin"].map((role) => (
-              <label key={role} className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="role"
-                  value={role}
-                  checked={signupInfo.role === role}
-                  onChange={handleRoleChange}
-                  className="accent-green-600"
-                />
-                <span className="ml-2 capitalize text-gray-700">{role}</span>
-              </label>
-            ))}
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className={`w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded transition-all duration-200 ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isLoading}
-          >
-            {isLoading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 
@@ -227,4 +175,3 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
-

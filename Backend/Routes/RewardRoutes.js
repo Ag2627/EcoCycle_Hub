@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createReward,
+  getUserRewardsOverview,
   getAllRewards,
   getRewardById,
   updateReward,
@@ -11,6 +12,7 @@ import {
 const rewardRouter = express.Router();
 
 rewardRouter.post("/", createReward);
+rewardRouter.get("/overview/:userId", getUserRewardsOverview);
 rewardRouter.get("/", getAllRewards);
 rewardRouter.get("/:id", getRewardById);
 rewardRouter.put("/:id", updateReward);

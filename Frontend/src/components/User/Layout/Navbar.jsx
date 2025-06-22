@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Leaf, LogOut } from "lucide-react";
 import clsx from "clsx";
 import { useDispatch } from "react-redux";
-import { logoutUser } from "@/redux/store/auth-slice"; // Update path if needed
+import { logoutUser } from "@/redux/store/authSlice"; // Update path if needed
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
