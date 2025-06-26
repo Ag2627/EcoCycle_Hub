@@ -1,4 +1,5 @@
 import Reward from "../Model/Reward.js";
+import Transaction from "../Model/Transaction.js";
 
 // Create a reward
 export const createReward = async (req, res) => {
@@ -8,6 +9,33 @@ export const createReward = async (req, res) => {
     res.status(201).json(reward);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+// reward overview
+export const getUserRewardsOverview = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const rewards = await Reward.find({}); // Filter if needed
+    const transactions = await Transaction.find({ userId }).sort({ createdAt: -1 });
+
+    const balance = transactions.reduce((acc, txn) =>
+      txn.type.startsWith('earned') ? acc + txn.amount : acc - txn.amount, 0
+    );
+
+    res.status(200).json({
+      balance: Math.max(balance, 0),
+      rewards,
+      transactions
+    });
+  } catch (error) {
+    console.error("Error fetching rewards overview:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -63,17 +91,48 @@ export const deleteReward = async (req, res) => {
   }
 };
 
-// Redeem a reward
+// Redeem a reward and create a transaction
 export const redeemReward = async (req, res) => {
-  const { rewardId } = req.body;
+  const { userId, rewardId } = req.body;
+
+  if (!userId || rewardId === undefined) {
+    return res.status(400).json({ error: "userId and rewardId are required" });
+  }
+
   try {
+    // Get reward details
     const reward = await Reward.findById(rewardId);
     if (!reward) return res.status(404).json({ error: "Reward not found" });
 
-    // TODO: Implement logic to deduct user points
+    const rewardCost = reward.cost;
 
-    res.json({ message: "Reward redeemed successfully", reward });
+    // Get user's transaction history to calculate balance
+    const transactions = await Transaction.find({ userId });
+    const balance = transactions.reduce((acc, txn) => {
+      return txn.type.startsWith("earned") ? acc + txn.amount : acc - txn.amount;
+    }, 0);
+
+    // Check if user has enough points
+    if (balance < rewardCost) {
+      return res.status(400).json({ error: "Insufficient balance to redeem this reward" });
+    }
+
+    // Create a transaction for redemption
+    const transaction = new Transaction({
+      userId,
+      type: "redeemed",
+      amount: rewardCost,
+      description: `Redeemed reward: ${reward.name}`,
+    });
+
+    await transaction.save();
+
+    res.json({
+      message: `Successfully redeemed reward: ${reward.name}`,
+      transaction,
+    });
   } catch (error) {
+    console.error("Error redeeming reward:", error);
     res.status(500).json({ error: error.message });
   }
 };

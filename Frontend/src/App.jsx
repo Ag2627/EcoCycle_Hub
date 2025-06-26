@@ -21,6 +21,7 @@ import UnauthPage from "./components/common/Unauthpage";
 import Reports from "./components/Admin/Reports";
 import Users from "./components/Admin/Users";
 import AdminDashboard from "./components/Admin/AdminDashboard";
+import RecyclingCenters from "./components/RecyclingCenters/RecyclingMap";
 
 // Protected Route: Only accessible if authenticated
 
@@ -118,3 +119,15 @@ function App() {
 }
 
 export default App;
+// const router=createBrowserRouter(
+//   [
+//     {path:'/',element:<GetStarted/>},
+//     {path:'/auth/login',element:<LoginPage/>},
+//     {path:'/auth/signup',element:<SignupPage/>},
+
+//     {path:'user/dashboard',element:<Home/>},
+//     {path:'user/report',element:<ReportPage/>},
+//     {path:'user/wastesorting',element:<WasteSorting/>},  
+    
+//     {path:'user/rewards', element:<RewardsPage/>},
+//     //{path:'user/recyclingcenters',element:<RecyclingMap/>}
