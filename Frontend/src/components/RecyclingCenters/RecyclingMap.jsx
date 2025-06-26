@@ -346,10 +346,6 @@ const addMarkers = () => {
           </div>
         </div>
       </main>
-<<<<<<< HEAD
-=======
-      {/* <Footer /> */}
->>>>>>> e28d37b03a821a467ae347fe0e96fe205c7d7f50
     </div>
   );
 };

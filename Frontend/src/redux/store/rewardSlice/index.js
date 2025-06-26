@@ -9,7 +9,11 @@ export const fetchRewardsData = createAsyncThunk(
   'rewards/fetchRewardsData',
   async (userId, thunkAPI) => {
     try {
+      console.log(userId);
+      
       const overviewRes = await axios.get(`${BASE_URL}/rewards/overview/${userId}`)
+      console.log("await");
+      
       const { balance, transactions, rewards } = overviewRes.data
 
       return {
