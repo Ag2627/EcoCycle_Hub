@@ -71,6 +71,7 @@ const router = createBrowserRouter([
       { path: 'user/my-reports', element: <MyReports /> },
       { path: 'user/wastesorting', element: <WasteSorting /> },
       { path: 'user/rewards', element: <RewardsPage /> },
+      { path: 'user/centres', element: <RecyclingMap /> },
     ]
   },
   {

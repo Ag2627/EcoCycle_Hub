@@ -29,7 +29,7 @@ const Navbar = () => {
   const navLinks = [
     { name: "Report Waste", path: `${url}/user/report` },
     { name: "My Reports", path: `${url}/user/my-reports` },
-    { name: "Find Centers", path: `${url}/user/recycling-centers` },
+    { name: "Find Centers", path: `${url}/user/centres` },
     { name: "Waste Guide", path: `${url}/user/wastesorting` },
     { name: "Rewards", path: `${url}/user/rewards` },
   ];
