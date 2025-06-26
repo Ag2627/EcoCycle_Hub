@@ -5,6 +5,7 @@ import { checkAuth } from "@/redux/store/authSlice";
 import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Home from './components/User/Home/Home';
 import RewardsPage from './components/User/Rewards/RewardsPage';
+import TransactionsPage from './components/User/Rewards/TransactionsPage'
 import LoginPage from './components/Registration/Login/Login';
 import SignupPage from './components/Registration/Signup/Signup';
 import GetStarted from './components/Registration/GetStarted';
@@ -68,6 +69,7 @@ const router = createBrowserRouter([
       { path: 'user/my-reports', element: <MyReports /> },
       { path: 'user/wastesorting', element: <WasteSorting /> },
       { path: 'user/rewards', element: <RewardsPage /> },
+      { path: 'user/transactions', element: <TransactionsPage /> },
       {path:'user/recycling-centers',element:<RecyclingCenters/>}
     ]
   },

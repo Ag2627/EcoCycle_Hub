@@ -7,20 +7,23 @@ const BASE_URL = 'http://localhost:5000'
 // Fetch user, rewards, transactions, and balance
 export const fetchRewardsData = createAsyncThunk(
   'rewards/fetchRewardsData',
-  async (email, thunkAPI) => {
+  async (userId, thunkAPI) => {
     try {
-      const userRes = await axios.get(`${BASE_URL}/users?email=${email}`)
-      const user = userRes.data
-
-      const overviewRes = await axios.get(`${BASE_URL}/rewards/overview/${user._id}`)
+      const overviewRes = await axios.get(`${BASE_URL}/rewards/overview/${userId}`)
       const { balance, transactions, rewards } = overviewRes.data
 
-      return { user, balance, transactions, rewards }
+      return {
+        user: { _id: userId },
+        balance,
+        transactions,
+        rewards
+      }
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.error || 'Failed to fetch data')
     }
   }
 )
+
 
 // Redeem any reward (single/all/other logic handled in controller)
 export const redeemReward = createAsyncThunk(
