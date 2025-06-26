@@ -50,7 +50,7 @@ const Hero = () => {
               <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              to="/recycling-centers"
+              to="/centres"
               className="secondary-button group w-full sm:w-auto flex items-center justify-center"
             >
               <span>Find Recycling Centers</span>
