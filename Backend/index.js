@@ -7,6 +7,7 @@ import Authrouter from "./Routes/AuthRouter.js";
 import Reportrouter from "./Routes/ReportRouter.js";
 import rewardRouter from "./Routes/RewardRoutes.js";
 import UserRouter from "./Routes/UserRouter.js";
+import CenterRouter from "./Routes/RecyclingCentersRouter.js";
 
 dotenv.config();
 const app = express();
@@ -37,9 +38,8 @@ app.get("/", (req, res) => {
 });
 app.use("/users",UserRouter);
 app.use("/reports", Reportrouter);
-
-
-app.use("/api/rewards", rewardRouter);
+app.use("/ngos",CenterRouter);
+app.use("/rewards", rewardRouter);
 
 
 

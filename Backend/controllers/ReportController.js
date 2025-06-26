@@ -2,6 +2,7 @@ import Report from "../Model/Report.js";
 import dotenv from 'dotenv';
 // Controller to verify waste using Gemini AI
 import axios from "axios";
+import User from "../Model/User.js";
 dotenv.config();
 
 // Controller to create a new report
@@ -25,7 +26,11 @@ export const createReport = async (req, res) => {
             imageUrl,
             createdAt: new Date(),
         });
-
+        await User.findByIdAndUpdate(
+      userId,
+      { $inc: { reportsCount: 1 } },
+      { new: true }
+    );
         await newReport.save();
         res.status(201).json({ message: "Report created successfully", report: newReport });
 
@@ -86,6 +91,11 @@ export const deleteReport = async (req, res) => {
         if (!report) {
             return res.status(404).json({ message: "Report not found" });
         }
+            await User.findByIdAndUpdate(
+        report.userId,
+        { $inc: { reportsCount: -1 } },
+        { new: true }
+        );
 
         res.status(200).json({ message: "Report deleted successfully" });
     } catch (error) {
@@ -117,3 +127,4 @@ export const updateReportStatus = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+

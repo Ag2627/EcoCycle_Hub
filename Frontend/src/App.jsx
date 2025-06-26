@@ -19,6 +19,7 @@ import Reports from "./components/Admin/Reports";
 import Users from "./components/Admin/Users";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import RecyclingCenters from "./components/RecyclingCenters/RecyclingMap";
+import AdminNGOManager from "./components/Admin/NGOs";
 
 // Protected Route: Only accessible if authenticated
 const AdminRoute = () => {
@@ -81,6 +82,7 @@ const router = createBrowserRouter([
           { index: true, element: <AdminDashboard/> }, // replace with your dashboard
           { path: 'users', element: <Users /> },
           { path: 'reports', element: <Reports /> },
+          {path:'ngos',element:<AdminNGOManager/>},
         ]
       }
     ]
