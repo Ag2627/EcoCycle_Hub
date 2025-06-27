@@ -6,10 +6,6 @@ export const fetchUsers = createAsyncThunk("users/fetch", async () => {
   return res.data;
 });
 
-export const updateUserStatus = createAsyncThunk("users/updateStatus", async ({ id, status }) => {
-  const res = await axios.put(`http://localhost:5000/users/${id}/status`, { status });
-  return res.data;
-});
 
 const userSlice = createSlice({
   name: "users",
@@ -27,12 +23,6 @@ const userSlice = createSlice({
         state.loading = false;
         state.users = action.payload;
       })
-      .addCase(updateUserStatus.fulfilled, (state, action) => {
-        const index = state.users.findIndex((u) => u._id === action.payload._id);
-        if (index !== -1) {
-          state.users[index] = action.payload;
-        }
-      });
   },
 });
 

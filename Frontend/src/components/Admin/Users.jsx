@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, updateUserStatus } from "@/redux/store/userSlice";
+import { fetchUsers } from "@/redux/store/userSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail, Award, BarChart3 } from "lucide-react";
 
@@ -13,11 +12,6 @@ const Users = () => {
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
-
-  const handleUserAction = (id, action) => {
-    const newStatus = action === "remove" ? "removed" : "active";
-    dispatch(updateUserStatus({ id, status: newStatus }));
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
@@ -94,29 +88,6 @@ const Users = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-3 ml-4">
-                        {user.status === "active" && (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleUserAction(user._id, "remove")}
-                            className="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
-                          >
-                            Remove
-                          </Button>
-                        )}
-                        {user.status === "removed" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUserAction(user._id, "activate")}
-                            className="border-green-500 text-green-600 hover:bg-green-50 font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
-                          >
-                            Activate
-                          </Button>
-                        )}
                       </div>
                     </div>
                   </div>

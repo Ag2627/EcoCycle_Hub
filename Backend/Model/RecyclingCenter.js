@@ -12,6 +12,6 @@ const centerSchema = new mongoose.Schema({
     lng: Number
   }
 });
-const RecyclingCenter=mongoose.model('RecyclingCenter', centerSchema);
 
+const RecyclingCenter = mongoose.model('RecyclingCenter', centerSchema);
 export default RecyclingCenter;

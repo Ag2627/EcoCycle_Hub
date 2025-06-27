@@ -5,6 +5,7 @@ import { checkAuth } from "@/redux/store/authSlice";
 import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Home from './components/User/Home/Home';
 import RewardsPage from './components/User/Rewards/RewardsPage';
+import TransactionsPage from './components/User/Rewards/TransactionsPage'
 import LoginPage from './components/Registration/Login/Login';
 import SignupPage from './components/Registration/Signup/Signup';
 import GetStarted from './components/Registration/GetStarted';
@@ -22,6 +23,7 @@ import Reports from "./components/Admin/Reports";
 import Users from "./components/Admin/Users";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import RecyclingCenters from "./components/RecyclingCenters/RecyclingMap";
+import AdminNGOManager from "./components/Admin/NGOs";
 
 // Protected Route: Only accessible if authenticated
 
@@ -73,6 +75,8 @@ const router = createBrowserRouter([
       { path: 'user/wastesorting', element: <WasteSorting /> },
       { path: 'user/rewards', element: <RewardsPage /> },
       { path: 'user/centres', element: <RecyclingMap /> },
+      { path: 'user/transactions', element: <TransactionsPage /> },
+      {path:'user/recycling-centers',element:<RecyclingCenters/>}
     ]
   },
   {
@@ -93,6 +97,7 @@ const router = createBrowserRouter([
           { index: true, element: <AdminDashboard/> }, // replace with your dashboard
           { path: 'users', element: <Users /> },
           { path: 'reports', element: <Reports /> },
+          {path:'ngos',element:<AdminNGOManager/>},
         ]
       }
     ]
