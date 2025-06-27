@@ -10,6 +10,9 @@ import SignupPage from './components/Registration/Signup/Signup';
 import GetStarted from './components/Registration/GetStarted';
 import ReportPage from './components/report/page';
 import WasteSorting from './components/SortingGuide/WasteSorting';
+
+import RecyclingMap from './components/RecyclingCenters/RecyclingMap';
+
 import MyReports from "./components/report/MyReports";
 import NotFoundPage from "./components/common/NotFoundPage";
  import { Toaster } from 'sonner'; 
@@ -22,6 +25,7 @@ import RecyclingCenters from "./components/RecyclingCenters/RecyclingMap";
 import AdminNGOManager from "./components/Admin/NGOs";
 
 // Protected Route: Only accessible if authenticated
+
 const AdminRoute = () => {
   const { isAuthenticated, isLoading, user } = useSelector(state => state.auth);
   const location = useLocation();
@@ -69,7 +73,7 @@ const router = createBrowserRouter([
       { path: 'user/my-reports', element: <MyReports /> },
       { path: 'user/wastesorting', element: <WasteSorting /> },
       { path: 'user/rewards', element: <RewardsPage /> },
-      {path:'user/recycling-centers',element:<RecyclingCenters/>}
+      { path: 'user/centres', element: <RecyclingMap /> },
     ]
   },
   {
@@ -79,6 +83,14 @@ const router = createBrowserRouter([
         path: '/admin',
         element: <AdminLayout />,
         children: [
+            { path: 'user/dashboard', element: <Home /> },
+            { path: 'user/report', element: <ReportPage /> },
+            {path:'user/my-reports',element:<MyReports/>},
+            { path: 'user/wastesorting', element: <WasteSorting /> },
+            { path: 'user/rewards', element: <RewardsPage /> },
+            { path: 'user/centres', element: <RecyclingMap /> },
+            // You might want a UserLayout component here to wrap these user routes
+            // { path: 'user', element: <UserLayout />, children: [ ... ]}
           { index: true, element: <AdminDashboard/> }, // replace with your dashboard
           { path: 'users', element: <Users /> },
           { path: 'reports', element: <Reports /> },
@@ -109,3 +121,15 @@ function App() {
 }
 
 export default App;
+// const router=createBrowserRouter(
+//   [
+//     {path:'/',element:<GetStarted/>},
+//     {path:'/auth/login',element:<LoginPage/>},
+//     {path:'/auth/signup',element:<SignupPage/>},
+
+//     {path:'user/dashboard',element:<Home/>},
+//     {path:'user/report',element:<ReportPage/>},
+//     {path:'user/wastesorting',element:<WasteSorting/>},  
+    
+//     {path:'user/rewards', element:<RewardsPage/>},
+//     //{path:'user/recyclingcenters',element:<RecyclingMap/>}

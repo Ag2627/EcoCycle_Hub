@@ -8,7 +8,6 @@ import Reportrouter from "./Routes/ReportRouter.js";
 import rewardRouter from "./Routes/RewardRoutes.js";
 import UserRouter from "./Routes/UserRouter.js";
 import CenterRouter from "./Routes/RecyclingCentersRouter.js";
-
 dotenv.config();
 const app = express();
 
@@ -17,7 +16,7 @@ app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 app.use( cors({
-    origin: "http://localhost:5173",
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Content-Type",
@@ -28,6 +27,10 @@ app.use( cors({
     ],
     credentials: true,
   })); //iske andar ye likhna optional h likh kar bas site secure banti h or nahi likhne par kisi par bhi chal jaati h
+app.use(cors({
+  origin: true, // or origin: '*', but not with credentials: true
+  credentials: true
+}));
 
 //   app.use(bodyParser.json({extended:true}));
 // app.use(bodyParser.urlencoded({extended:true}));
@@ -42,8 +45,7 @@ app.use("/ngos",CenterRouter);
 app.use("/rewards", rewardRouter);
 
 
-
-
+app.use("/api/rewards", rewardRouter);
 
 
 // MongoDB Connection
