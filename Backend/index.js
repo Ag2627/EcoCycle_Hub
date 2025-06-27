@@ -46,9 +46,6 @@ app.use("/rewards", rewardRouter);
 
 
 app.use("/api/rewards", rewardRouter);
-app.use("/rewards", rewardRouter);
-app.use("/api/centers", recyclingRouter);
-
 
 
 
