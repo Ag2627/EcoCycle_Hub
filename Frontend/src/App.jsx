@@ -18,6 +18,7 @@ import MyReports from "./components/report/MyReports";
 import NotFoundPage from "./components/common/NotFoundPage";
  import { Toaster } from 'sonner'; 
 import AdminLayout from "./components/Admin/AdminLayout";
+import ManageRewards from "./components/Admin/ManageRewards";
 import UnauthPage from "./components/common/Unauthpage";
 import Reports from "./components/Admin/Reports";
 import Users from "./components/Admin/Users";
@@ -96,6 +97,7 @@ const router = createBrowserRouter([
           { index: true, element: <AdminDashboard/> }, // replace with your dashboard
           { path: 'users', element: <Users /> },
           { path: 'reports', element: <Reports /> },
+          { path: 'managerewards', element: <ManageRewards /> },
         ]
       }
     ]

@@ -1,4 +1,5 @@
 import express from "express";
+import  VerifyAdmin  from "../Middleware/VerifyAdmin.js";
 import {
   createReward,
   getUserRewardsOverview,
@@ -11,12 +12,12 @@ import {
 
 const rewardRouter = express.Router();
 
-rewardRouter.post("/", createReward);
+rewardRouter.post("/",VerifyAdmin, createReward);
 rewardRouter.get("/overview/:userId", getUserRewardsOverview);
 rewardRouter.get("/", getAllRewards);
 rewardRouter.get("/:id", getRewardById);
-rewardRouter.put("/:id", updateReward);
-rewardRouter.delete("/:id", deleteReward);
+rewardRouter.put("/:id",VerifyAdmin, updateReward);
+rewardRouter.delete("/:id",VerifyAdmin,  deleteReward);
 rewardRouter.post("/redeem", redeemReward);
 
 export default rewardRouter;

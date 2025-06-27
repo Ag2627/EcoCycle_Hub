@@ -12,18 +12,11 @@ export default function RewardsPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const {
-    user,
-    balance,
-    rewards,
-    transactions,
-    loading,
-    error
-  } = useSelector(state => state.rewards)
+  const { user, balance, rewards, loading, error } = useSelector(state => state.rewards)
 
-  // Load rewards when page mounts
- useEffect(() => {
-  const userId = localStorage.getItem('id')  // 🔑 Use the key you mentioned
+  // Load user rewards on mount
+  useEffect(() => {
+  const userId = localStorage.getItem('id')
   if (userId) {
     dispatch(fetchRewardsData(userId))
   } else {
@@ -32,23 +25,25 @@ export default function RewardsPage() {
 }, [dispatch])
 
 
-  // Redeem handler
   const handleRedeem = (rewardId) => {
-    if (!user) return toast.error('Please log in.')
+  const userId = localStorage.getItem('id') // ✅ Use stored user ID
 
-    const reward = rewards.find(r => r._id === rewardId)
-    if (!reward || reward.cost <= 0 || balance < reward.cost) {
-      return toast.error('Insufficient points or invalid reward.')
-    }
+  if (!userId) return toast.error('Please log in.')
 
-    dispatch(redeemReward({ userId: user._id, rewardId, email: user.email }))
-      .unwrap()
-      .then(() => toast.success(`Redeemed ${reward.name}`))
-      .catch(err => toast.error(err))
+  const reward = rewards.find(r => r._id === rewardId)
+  if (!reward || reward.cost <= 0 || balance < reward.cost) {
+    return toast.error('Insufficient points or invalid reward.')
   }
 
+  dispatch(redeemReward({ userId, rewardId }))
+    .unwrap()
+    .then(() => toast.success(`Redeemed ${reward.name}`))
+    .catch(err => toast.error(err))
+}
+
+
   const goToTransactionPage = () => {
-    navigate('/user/transactions') // Make sure this route is handled in your router
+    navigate('/user/transactions')
   }
 
   if (loading) {
@@ -67,20 +62,21 @@ export default function RewardsPage() {
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6 text-gray-800">Rewards Dashboard</h1>
 
-      {/* Available Points */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 mb-8">
-        <h2 className="text-xl font-semibold mb-2 text-gray-800">Available Points</h2>
+      {/* Points & View Transactions Button */}
+      <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 mb-8 flex justify-between items-center">
         <div className="flex items-center">
           <Coins className="w-10 h-10 mr-3 text-green-500" />
-          <span className="text-4xl font-bold text-green-600">{balance}</span>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800">Available Points</h2>
+            <span className="text-3xl font-bold text-green-600">{balance}</span>
+          </div>
         </div>
-      </div>
-      <div className="text-center">
-        <Button onClick={goToTransactionPage} className="bg-white hover:bg-green-100 text-green-600 px-6 py-2 rounded-lg text-lg">
-          View Transaction History
+        <Button onClick={goToTransactionPage} className="text-sm bg-gray-100 text-green-600 hover:bg-green-100">
+          View Transactions
         </Button>
       </div>
-      {/* Available Rewards */}
+
+      {/* Rewards */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Available Rewards</h2>
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -91,10 +87,7 @@ export default function RewardsPage() {
                   <p className="text-gray-800 font-medium">{reward.name}</p>
                   <p className="text-sm text-gray-500">Cost: {reward.cost} pts</p>
                 </div>
-                <Button
-                  onClick={() => handleRedeem(reward._id)}
-                  disabled={balance < reward.cost}
-                >
+                <Button onClick={() => handleRedeem(reward._id)} disabled={balance < reward.cost}>
                   Redeem
                 </Button>
               </div>
@@ -104,12 +97,10 @@ export default function RewardsPage() {
           )}
         </div>
       </div>
-
-      {/* View Transactions Button */}
-      
     </div>
   )
 }
+
 
 
 
