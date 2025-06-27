@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { LayoutDashboard, Users, FileText, Store, MessageCircle } from "lucide-react";
 import { LayoutDashboard, Users, FileText, Coins } from "lucide-react";
 
 export default function Sidebar() {
@@ -7,6 +8,8 @@ export default function Sidebar() {
     { label: "Users", icon: <Users />, path: "/admin/users" },
     { label: "Reports", icon: <FileText />, path: "/admin/reports" },
     { label: "Manage Rewards", icon: <Coins/>, path: "/admin/managerewards"},
+    {label:"NGO's",icon:<Store/>,path:"/admin/ngos"},
+    {label:"Reminders",icon:<MessageCircle/>,path:"/admin/reminders"}
   ];
 
   return (

@@ -24,6 +24,8 @@ import Reports from "./components/Admin/Reports";
 import Users from "./components/Admin/Users";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import RecyclingCenters from "./components/RecyclingCenters/RecyclingMap";
+import AdminNGOManager from "./components/Admin/NGOs";
+import AdminReminders from "./components/Admin/AdminReminders";
 
 // Protected Route: Only accessible if authenticated
 
@@ -86,18 +88,14 @@ const router = createBrowserRouter([
         path: '/admin',
         element: <AdminLayout />,
         children: [
-            { path: 'user/dashboard', element: <Home /> },
-            { path: 'user/report', element: <ReportPage /> },
-            {path:'user/my-reports',element:<MyReports/>},
-            { path: 'user/wastesorting', element: <WasteSorting /> },
-            { path: 'user/rewards', element: <RewardsPage /> },
-            { path: 'user/centres', element: <RecyclingMap /> },
-            // You might want a UserLayout component here to wrap these user routes
+           // You might want a UserLayout component here to wrap these user routes
             // { path: 'user', element: <UserLayout />, children: [ ... ]}
           { index: true, element: <AdminDashboard/> }, // replace with your dashboard
           { path: 'users', element: <Users /> },
           { path: 'reports', element: <Reports /> },
           { path: 'managerewards', element: <ManageRewards /> },
+          {path:'ngos',element:<AdminNGOManager/>},
+          {path:'reminders',element:<AdminReminders/>},
         ]
       }
     ]

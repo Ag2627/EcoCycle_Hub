@@ -35,10 +35,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-3">
-              <li><Link to="/waste-report" className="footer-link">Report Waste</Link></li>
-              <li><Link to="/recycling-centers" className="footer-link">Find Recycling Centers</Link></li>
-              <li><Link to="/waste-sorting" className="footer-link">AI Waste Sorting Guide</Link></li>
-              <li><Link to="/rewards" className="footer-link">Recycling Rewards</Link></li>
+              <li><Link to="/user/report" className="footer-link">Report Waste</Link></li>
+              <li><Link to="/user/centres" className="footer-link">Find Recycling Centers</Link></li>
+              <li><Link to="/user/wastesorting" className="footer-link">AI Waste Sorting Guide</Link></li>
+              <li><Link to="/user/rewards" className="footer-link">Recycling Rewards</Link></li>
             </ul>
           </div>
 

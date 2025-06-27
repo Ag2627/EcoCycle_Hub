@@ -43,14 +43,14 @@ const Hero = () => {
 
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 animate-fadeIn">
             <Link
-              to="/waste-report"
+              to="/user/report"
               className="primary-button group w-full sm:w-auto flex items-center justify-center"
             >
               <span>Report Waste</span>
               <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              to="/centres"
+              to="/user/centres"
               className="secondary-button group w-full sm:w-auto flex items-center justify-center"
             >
               <span>Find Recycling Centers</span>

@@ -9,6 +9,8 @@ import rewardRouter from "./Routes/RewardRoutes.js";
 import UserRouter from "./Routes/UserRouter.js";
 import recyclingRouter from "./Routes/CentreRouter.js";
 import UploadRouter from "./Routes/UploadRouter.js";
+import CenterRouter from "./Routes/RecyclingCentersRouter.js";
+import Remindrouter from "./Routes/ReminderRouter.js";
 dotenv.config();
 const app = express();
 
@@ -18,7 +20,7 @@ app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 app.use( cors({
     origin: ['http://localhost:5173', 'http://localhost:5174'],
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    methods: ["GET", "POST", "DELETE", "PUT","PATCH"],
     allowedHeaders: [
       "Content-Type",
       "authorization",
@@ -44,9 +46,12 @@ app.use("/users",UserRouter);
 app.use("/reports", Reportrouter);
 app.use("/upload", UploadRouter)
 
+app.use("/ngos",CenterRouter);
 app.use("/rewards", rewardRouter);
-app.use("/api/centers", recyclingRouter);
+app.use("/remind",Remindrouter);
 
+
+app.use("/api/rewards", rewardRouter);
 
 
 

@@ -1,6 +1,7 @@
 import Report from "../Model/Report.js";
 import dotenv from 'dotenv';
 import axios from "axios";
+import User from "../Model/User.js";
 import Transaction from "../Model/Transaction.js"; // for saving reward info
 
 dotenv.config();
@@ -13,27 +14,31 @@ export const createReport = async (req, res) => {
       amount, address, imageUrl, userId
     } = req.body;
 
-    if (!location || !type || !amount || !imageUrl || !userId) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+        if (!location || !type || !amount || !imageUrl || !userId) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+         // 1. Create the report
 
-    // 1. Create the report
-    const newReport = new Report({
+        const newReport = new Report({
+            userId,
+            location,
+            type,
+            address,
+            latitude,
+            longitude,
+            currentLocation,
+            amount,
+            imageUrl,
+            createdAt: new Date(),
+        });
+        await User.findByIdAndUpdate(
       userId,
-      location,
-      type,
-      address,
-      latitude,
-      longitude,
-      currentLocation,
-      amount,
-      imageUrl,
-      createdAt: new Date(),
-    });
+      { $inc: { reportsCount: 1 } },
+      { new: true }
+    );
+        await newReport.save();
 
-    await newReport.save();
-
-    // 2. Reward points (e.g., 10 points)
+         // 2. Reward points (e.g., 10 points)
     const rewardPoints = 10;
     const rewardTransaction = new Transaction({
       userId,
@@ -52,10 +57,10 @@ export const createReport = async (req, res) => {
       transaction: rewardTransaction
     });
 
-  } catch (error) {
-    console.error("Error creating report:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
+    } catch (error) {
+        console.error("Error creating report:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
 };
 
 
@@ -109,6 +114,11 @@ export const deleteReport = async (req, res) => {
         if (!report) {
             return res.status(404).json({ message: "Report not found" });
         }
+            await User.findByIdAndUpdate(
+        report.userId,
+        { $inc: { reportsCount: -1 } },
+        { new: true }
+        );
 
         res.status(200).json({ message: "Report deleted successfully" });
     } catch (error) {

@@ -1,10 +1,20 @@
+// routes/recyclingCenterRoutes.js
 import express from "express";
-import RecyclingCenter from "../Model/Centres.js";
-const recyclingRouter = express.Router();
-;
+import {
+  getAllCenters,
+  createCenter,
+  updateCenter,
+  deleteCenter,
+} from "../controllers/RecyclingCenterController.js";
+import RecyclingCenter from "../Model/RecyclingCenter.js";
+const CenterRouter = express.Router();
 
-// Get all centers
-recyclingRouter.get('/', async (req, res) => {
+CenterRouter.get("/", getAllCenters);
+CenterRouter.post("/", createCenter);
+CenterRouter.put("/:id", updateCenter);
+CenterRouter.delete("/:id", deleteCenter);
+
+CenterRouter.get('/', async (req, res) => {
   try {
     const centers = await RecyclingCenter.find();
     res.json(centers);
@@ -12,7 +22,7 @@ recyclingRouter.get('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch centers' });
   }
 });
-recyclingRouter.get('/nearby', async (req, res) => {
+CenterRouter.get('/nearby', async (req, res) => {
   const { lat, lng, distance = 10 } = req.query;
   if (!lat || !lng) return res.status(400).json({ message: 'Missing coordinates' });
 
@@ -49,7 +59,7 @@ recyclingRouter.get('/nearby', async (req, res) => {
 });
 
 // Add a new center
-recyclingRouter.post('/', async (req, res) => {
+CenterRouter.post('/', async (req, res) => {
   try {
     const newCenter = new RecyclingCenter(req.body);
     await newCenter.save();
@@ -58,9 +68,10 @@ recyclingRouter.post('/', async (req, res) => {
     res.status(400).json({ error: 'Failed to create center' });
   }
 });
-recyclingRouter.get('/test', (req, res) => {
+CenterRouter.get('/test', (req, res) => {
   res.send('Router working!');
 });
 
 
-export default recyclingRouter;
+
+export default CenterRouter;
