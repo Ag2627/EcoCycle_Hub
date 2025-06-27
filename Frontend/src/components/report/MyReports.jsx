@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { BadgeCheck, Clock, Truck, CheckCircle, Gift } from "lucide-react";
+import { useLocation } from 'react-router-dom';
+
 
 const statusStyles = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -23,7 +25,8 @@ const MyReports = () => {
   const user = useSelector((state) => state.auth.user);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
+const location = useLocation();
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -39,7 +42,27 @@ const MyReports = () => {
     if (user?._id) {
       fetchReports();
     }
-  }, [user?._id]);
+  }, [user?._id, location.state?.refresh]);
+  const handleRemindAdmin = async (report) => {
+  try {
+    await axios.post(`http://localhost:5000/remind`, {
+      reportId: report._id,
+      userId: user._id,
+    });
+    alert("Reminder sent to admin!");
+  } catch (err) {
+    console.error("Failed to remind admin", err);
+    alert("Failed to send reminder");
+  }
+};
+
+  
+  const isOlderThan15Days = (dateStr) => {
+  const createdDate = new Date(dateStr);
+  const now = new Date();
+  const diffInDays = (now - createdDate) / (1000 * 60 * 60 * 24);
+  return diffInDays >= 15;
+};
 
   if (loading) {
     return <div className="text-center text-gray-600 mt-10">Loading reports...</div>;
@@ -54,6 +77,7 @@ const MyReports = () => {
       ) : (
         <div className="space-y-6">
           {reports.map((report) => (
+            
             <div
               key={report._id}
               className="bg-white rounded-2xl shadow-md p-5 grid grid-cols-1 md:grid-cols-4 gap-4"
@@ -87,7 +111,19 @@ const MyReports = () => {
                   <strong>Submitted:</strong> {new Date(report.createdAt).toLocaleString()}
                 </p>
               </div>
+              {isOlderThan15Days(report.createdAt) && report.status !== "completed" && (
+  <div className="mt-3 text-sm text-red-600 font-medium">
+    ⚠ This report is older than 15 days and still pending.
+    <button
+      onClick={() => handleRemindAdmin(report)}
+      className="ml-2 text-blue-600 underline hover:text-blue-800"
+    >
+      Remind Admin
+    </button>
+  </div>
+)}
             </div>
+
           ))}
         </div>
       )}

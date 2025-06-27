@@ -274,7 +274,7 @@ Respond in JSON format like this:
       setVerificationResult(null);
       setNewReport({ location: "", type: "", amount: "", address: "" });
       setIsSubmitting(false);
-      navigate("/user/my-reports")
+      navigate("/user/my-reports",{ state: { refresh: true }} )
   };
 return (
   <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-white py-16 px-4">

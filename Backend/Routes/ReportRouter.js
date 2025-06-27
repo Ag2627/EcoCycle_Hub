@@ -5,7 +5,7 @@ import {
     getReportById, 
     deleteReport,
     getReportByUserId,
-    updateReportStatus, 
+    updateReportStatus,
     // verifyWaste 
 } from "../controllers/ReportController.js";
 import { getStats } from "../controllers/StatsController.js";
@@ -27,8 +27,5 @@ Reportrouter.get("/user/:userId", getReportByUserId);
 
 // Route to delete a report by ID
 Reportrouter.delete("/:id", deleteReport);
-
-// Route to verify waste using AI (e.g., Gemini AI)
-// Reportrouter.post("/verify", verifyWaste);
 
 export default Reportrouter;
