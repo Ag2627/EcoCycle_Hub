@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ArrowRight, Upload, Check, Camera, MapPin } from "lucide-react";
+import { ArrowRight, Upload, Check, Camera, MapPin , Leaf} from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Link } from "react-router-dom";
@@ -223,6 +223,12 @@ const WasteSorting = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <div className="pt-4 px-10">
+        <Link to="/user/dashboard" className="flex items-center text-green-800 font-bold text-xl">
+          <Leaf size={28} className="mr-2" />
+          RecycleConnect
+        </Link>
+      </div>
       <main className="flex-grow">
         {/* Hero Section */}
         <div className="bg-green-50 py-12 mb-8">

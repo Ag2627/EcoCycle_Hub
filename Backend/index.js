@@ -7,7 +7,7 @@ import Authrouter from "./Routes/AuthRouter.js";
 import Reportrouter from "./Routes/ReportRouter.js";
 import rewardRouter from "./Routes/RewardRoutes.js";
 import UserRouter from "./Routes/UserRouter.js";
-import recyclingRouter from "./Routes/CentreRouter.js";
+// import recyclingRouter from "./Routes/CentreRouter.js";
 import UploadRouter from "./Routes/UploadRouter.js";
 import CenterRouter from "./Routes/RecyclingCentersRouter.js";
 import Remindrouter from "./Routes/ReminderRouter.js";

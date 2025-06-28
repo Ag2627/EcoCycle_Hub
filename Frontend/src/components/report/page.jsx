@@ -1,9 +1,9 @@
 "use client";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useState, useEffect,useRef } from "react";
-import { CheckCircle, Upload, Loader, MapPin } from "lucide-react";
+import { CheckCircle, Upload, Loader, MapPin , Leaf} from "lucide-react";
 import { useSelector,useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,Link} from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import mapboxgl from "mapbox-gl";
@@ -278,7 +278,14 @@ Respond in JSON format like this:
   };
 return (
   <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-white py-16 px-4">
+    <div className="flex items-center justify-between mb-6">
+    <Link to="/user/dashboard" className="flex items-center text-green-800 font-bold text-xl">
+      <Leaf size={28} className="mr-2" />
+      RecycleConnect
+    </Link>
+  </div>
   <div className="mx-auto w-full max-w-4xl rounded-3xl bg-white/80 backdrop-blur-lg shadow-2xl ring-1 ring-black/5 p-10">
+    
     <h1 className="mb-8 text-center text-4xl font-extrabold tracking-tight text-emerald-700">
       Report Waste
     </h1>

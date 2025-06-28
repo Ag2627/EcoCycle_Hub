@@ -3,8 +3,9 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchRewardsData } from '../../../redux/store/rewardSlice'
-import { Loader } from 'lucide-react'
+import { Loader , Leaf} from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
 export default function TransactionsPage() {
   const dispatch = useDispatch()
@@ -45,8 +46,17 @@ export default function TransactionsPage() {
   }
 
   return (
+    <div>
+     <div className="pt-4 px-10">
+        <Link to="/user/dashboard" className="flex items-center text-green-800 font-bold text-xl">
+          <Leaf size={28} className="mr-2" />
+          RecycleConnect
+        </Link>
+      </div>
+
     <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-6 text-gray-800">Transaction History</h1>
+    
+    <h1 className="text-3xl font-semibold text-gray-800">Transaction History</h1>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         {transactions.length > 0 ? (
@@ -73,6 +83,7 @@ export default function TransactionsPage() {
           <div className="p-4 text-center text-gray-500">No transactions yet</div>
         )}
       </div>
+    </div>
     </div>
   )
 }

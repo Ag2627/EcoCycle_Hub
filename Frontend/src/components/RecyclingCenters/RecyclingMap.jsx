@@ -1038,7 +1038,8 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { MapPin, Search, Filter, Clock, Phone, Map, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
-
+import { Link } from 'react-router-dom';
+import { Leaf } from 'lucide-react';
 const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 mapboxgl.accessToken = mapboxToken;
  
@@ -1261,6 +1262,12 @@ const addMarkers = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <div className="pt-4 px-10">
+        <Link to="/user/dashboard" className="flex items-center text-green-800 font-bold text-xl">
+          <Leaf size={28} className="mr-2" />
+          RecycleConnect
+        </Link>
+      </div>
       <main className="flex-grow pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">

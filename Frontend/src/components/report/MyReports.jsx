@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { BadgeCheck, Clock, Truck, CheckCircle, Gift } from "lucide-react";
+import { BadgeCheck, Clock, Truck, CheckCircle, Gift , Leaf} from "lucide-react";
 import { useLocation } from 'react-router-dom';
-
+import { Link } from "react-router-dom";
 
 const statusStyles = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -70,7 +70,13 @@ const location = useLocation();
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">My Waste Reports</h1>
+      <div className="flex items-center justify-between mb-6">
+    <Link to="/user/dashboard" className="flex items-center text-green-800 font-bold text-xl">
+      <Leaf size={28} className="mr-2" />
+      RecycleConnect
+    </Link>
+    <h1 className="text-3xl font-semibold text-gray-800">My Reports</h1>
+  </div>
 
       {reports.length === 0 ? (
         <p className="text-gray-500">You haven't submitted any reports yet.</p>

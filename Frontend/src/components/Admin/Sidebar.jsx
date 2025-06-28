@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, Store, MessageCircle } from "lucide-react";
-import { LayoutDashboard, Users, FileText, Coins } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Store, MessageCircle , Coins} from "lucide-react";
 
 export default function Sidebar() {
   const menu = [

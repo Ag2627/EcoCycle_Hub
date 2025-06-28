@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Coins, Loader } from 'lucide-react'
+import { Coins, Loader , Leaf} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { fetchRewardsData, redeemReward } from '../../../redux/store/rewardSlice'
 
 export default function RewardsPage() {
@@ -59,8 +59,17 @@ export default function RewardsPage() {
   }
 
   return (
+    <div>
+      <div className="pt-4 px-10">
+        <Link to="/user/dashboard" className="flex items-center text-green-800 font-bold text-xl">
+          <Leaf size={28} className="mr-2" />
+          RecycleConnect
+        </Link>
+      </div>
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-6 text-gray-800">Rewards Dashboard</h1>
+      
+    <h1 className="text-3xl font-semibold text-gray-800">Rewards Dashboard</h1>
+ 
 
       {/* Points & View Transactions Button */}
       <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 mb-8 flex justify-between items-center">
@@ -97,6 +106,7 @@ export default function RewardsPage() {
           )}
         </div>
       </div>
+    </div>
     </div>
   )
 }
