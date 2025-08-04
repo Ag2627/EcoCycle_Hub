@@ -13,8 +13,6 @@ import { fetchCenters, updateCenter, deleteCenter, createCenter } from "@/redux/
 const AdminNGOManager = () => {
   const dispatch = useDispatch();
   const { centers=[], loading } = useSelector((state) => state.centers);
-console.log("💥 centers from Redux:", centers);
-
   // For editing an existing NGO
   const [editingNGO, setEditingNGO] = useState(null);
   const [form, setForm] = useState({});

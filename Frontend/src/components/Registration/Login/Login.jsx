@@ -36,14 +36,6 @@ const LoginPage = () => {
         setLoginInfo((prev) => ({ ...prev, [name]: value }));
     };
 
-    // useEffect(() => {
-    //     if (authError) {
-    //         showToast("Login Failed", authError, "destructive");
-    //         dispatch(clearAuthError());
-    //     }
-    // }, [authError, dispatch]);
-
-
     const onSubmit = (event) => {
         event.preventDefault();
         try{

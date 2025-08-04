@@ -30,8 +30,6 @@ export const getReminders = async (req, res) => {
 
 export const markReminderResolved = async (req, res) => {
   try {
-    console.log("Received resolve request for reminder ID:", req.params.id);
-
     const reminder = await Reminder.findById(req.params.id);
     if (!reminder) {
       console.log("Reminder not found");
@@ -52,7 +50,6 @@ export const markReminderResolved = async (req, res) => {
 
     // Delete the reminder
     await Reminder.findByIdAndDelete(req.params.id);
-    console.log("Reminder deleted");
 
     return res.status(200).json({ message: 'Reminder resolved and report marked as completed.' });
   } catch (err) {

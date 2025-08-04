@@ -104,50 +104,50 @@ const WasteSorting = () => {
     });
   };
   // Handle camera capture
-  const handleCameraCapture = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      setCameraStream(stream);
-      setIsCameraOpen(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    } catch (err) {
-      toast.error("Unable to access camera.");
-      console.error("Camera error:", err);
-    }
-  };
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+  // const handleCameraCapture = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  //     setCameraStream(stream);
+  //     setIsCameraOpen(true);
+  //     if (videoRef.current) {
+  //       videoRef.current.srcObject = stream;
+  //     }
+  //   } catch (err) {
+  //     toast.error("Unable to access camera.");
+  //     console.error("Camera error:", err);
+  //   }
+  // };
+  // const capturePhoto = () => {
+  //   if (!videoRef.current || !canvasRef.current) return;
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+  //   const video = videoRef.current;
+  //   const canvas = canvasRef.current;
+  //   const context = canvas.getContext("2d");
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  //   canvas.width = video.videoWidth;
+  //   canvas.height = video.videoHeight;
+  //   context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    canvas.toBlob(async (blob) => {
-      if (blob) {
-        const file = new File([blob], "captured_image.jpg", {
-          type: "image/jpeg",
-        });
-        await handleImageUpload({ target: { files: [file] } });
-      }
-    }, "image/jpeg");
+  //   canvas.toBlob(async (blob) => {
+  //     if (blob) {
+  //       const file = new File([blob], "captured_image.jpg", {
+  //         type: "image/jpeg",
+  //       });
+  //       await handleImageUpload({ target: { files: [file] } });
+  //     }
+  //   }, "image/jpeg");
 
-    // Stop camera after capturing
-    stopCamera();
-  };
+  //   // Stop camera after capturing
+  //   stopCamera();
+  // };
 
-  const stopCamera = () => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach((track) => track.stop());
-      setCameraStream(null);
-    }
-    setIsCameraOpen(false);
-  };
+  // const stopCamera = () => {
+  //   if (cameraStream) {
+  //     cameraStream.getTracks().forEach((track) => track.stop());
+  //     setCameraStream(null);
+  //   }
+  //   setIsCameraOpen(false);
+  // };
 
   // Reset the state
   const handleReset = () => {

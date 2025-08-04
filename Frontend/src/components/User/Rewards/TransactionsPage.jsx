@@ -15,16 +15,11 @@ export default function TransactionsPage() {
     loading,
     error
   } = useSelector(state => state.rewards)
-  console.log("user", user);
-  console.log("transactions: ",transactions);
 
-  
-  
   
   // Fetch transactions and user data
   useEffect(() => {
     const email = localStorage.getItem('userEmail')
-    console.log("email: ", email);
     
     if (email) {
       dispatch(fetchRewardsData(email))

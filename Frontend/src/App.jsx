@@ -122,15 +122,3 @@ function App() {
 }
 
 export default App;
-// const router=createBrowserRouter(
-//   [
-//     {path:'/',element:<GetStarted/>},
-//     {path:'/auth/login',element:<LoginPage/>},
-//     {path:'/auth/signup',element:<SignupPage/>},
-
-//     {path:'user/dashboard',element:<Home/>},
-//     {path:'user/report',element:<ReportPage/>},
-//     {path:'user/wastesorting',element:<WasteSorting/>},  
-    
-//     {path:'user/rewards', element:<RewardsPage/>},
-//     //{path:'user/recyclingcenters',element:<RecyclingMap/>}

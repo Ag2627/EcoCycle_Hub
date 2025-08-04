@@ -8,11 +8,8 @@ const BASE_URL = 'http://localhost:5000'
 export const fetchRewardsData = createAsyncThunk(
   'rewards/fetchRewardsData',
   async (userId, thunkAPI) => {
-    try {
-      console.log(userId);
-      
+    try {      
       const overviewRes = await axios.get(`${BASE_URL}/rewards/overview/${userId}`)
-      console.log("await");
       
       const { balance, transactions, rewards } = overviewRes.data
 
